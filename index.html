@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="style.css">
+    <title>Gravity</title>
+</head>
+<body>
+    <div id="container">
+        <div id="canvascontainer">
+            <canvas id="canvas" width="800px" height="600px"></canvas>
+        </div>
+
+        <div id="tools">
+            <select id="focus" class="tooloptions">
+                <option value="none">None</option>
+                <option value="sun">Sun</option>
+                <option value="earth">Earth</option>
+                <option value="moon">Moon</option>
+                <option value="jupiter">Jupiter</option>
+                <option value="ganymede">Ganymede</option>
+                <option value="europa">Europa</option>
+            </select>
+
+            <div id="shownames" class="tooloptions" onchange="changeNameVisibility()">
+                <input type="checkbox" class="checkbox" id="shownames" value="shownames">
+                <label for="shownames" class="text">Show Name</label>
+            </div>
+        
+            <p id="debug">text</p>
+        </div>
+
+        <div id="timebuttons">
+            <button id="backward" onclick="skipbackward()">&lt &lt</button>
+            <button id="pause" onclick="pause()">&#x23F5</button>
+            <button id="forward" onclick="skipforward()">&gt &gt</button>
+        </div>
+    </div>
+
+    <script defer src="physics.js"></script>
+    <script defer src="view.js"></script>
+    <script defer src="script.js"></script>
+
+</body>
+</html>
