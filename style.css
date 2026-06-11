@@ -41,7 +41,11 @@ canvas {
     font-size: 1rem;
 }
 
-#timebuttons :nth-child(3 of button){
+#timebuttons :nth-child(1 of button){
+    margin-right: 0.5rem;
+}
+
+#timebuttons :nth-child(4 of button){
     margin-right: 0.5rem;
 }
 

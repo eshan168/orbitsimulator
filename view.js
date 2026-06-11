@@ -13,6 +13,7 @@ const minspeed = 125;
 const focusmenu = document.getElementById("focus");
 const backward = document.getElementById("backwards");
 const forward = document.getElementById("forwards");
+const reverse = document.getElementById("reverse");
 
 const focusMenu = document.getElementById("focus")
 
@@ -82,6 +83,19 @@ focusmenu.addEventListener("change", function() {
     changefocus();
 });
 
+function reverseTime() {
+    timestep *= -1;
+    if (reverse.innerText == "Reverse") {
+        reverse.innerText = "Forward";
+    } else {
+        reverse.innerText = "Reverse";
+    }
+
+    for (body of bodies) {
+        body.cleartrail();
+    }
+}
+
 function skipbackward() {
     if (timestep > minspeed) {
         timestep *= 0.5;
@@ -128,7 +142,7 @@ function focus() {
         return;
     }
 
-    ctx.translate(-focusbody.vector[0] * timestep - 0.5 * focusbody.oldAcceleration[0] * Math.pow(timestep, 2), -focusbody.vector[1] * timestep - 0.5 * focusbody.oldAcceleration[1] * Math.pow(timestep, 2));
+    ctx.translate(focusbody.prevPostion[0]-focusbody.position[0], focusbody.prevPostion[1]-focusbody.position[1]);
 }
 
 function toScale(num) {
