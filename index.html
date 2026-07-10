@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <title>Gravity</title>
 </head>
+
 <body>
     <div id="container">
         <div id="canvascontainer">
@@ -23,19 +24,27 @@
                 <option value="europa">Europa</option>
             </select>
 
-            <div id="shownames" class="tooloptions" onchange="changeNameVisibility()">
-                <input type="checkbox" class="checkbox" id="shownames" value="shownames">
+            <div class="tooloptions">
+                <input type="checkbox" class="checkbox" id="shownames" value="shownames" checked>
                 <label for="shownames" class="text">Show Name</label>
             </div>
         
             <p id="debug">text</p>
         </div>
 
-        <div id="timebuttons">
-            <button id="reverse" onclick="reverseTime()">Reverse</button>
-            <button id="backward" onclick="skipbackward()">&lt &lt</button>
-            <button id="pause" onclick="pause()">&#x23F5</button>
-            <button id="forward" onclick="skipforward()">&gt &gt</button>
+        <div id="lowerLeftButtons">
+            <button id="resetView">Reset View</button>
+        </div>
+
+        <div id="lowerRightButtons">
+            <button id="reverse">Reverse</button>
+            <button id="backward">&lt &lt</button>
+            <button id="pause">⏸︎</button>
+            <button id="forward">&gt &gt</button>
+        </div>
+
+        <div id="upperRightButtons">
+            <button id="clearAll">Clear All</button>
         </div>
     </div>
 
