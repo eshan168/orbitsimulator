@@ -9,17 +9,17 @@ const minfont = 0.01;
 
 class Body {
 
-    // {radius=10, mass=1, x=0,y=0,vector=[0,0],color="white"}
-    // new Body({radius: 10, mass: 1, x: 0,y: 0,vector: [0,0],color: "white"})
+    // {radius=10, mass=1, x=0,y=0,velocity=[0,0],color="white"}
+    // new Body({radius: 10, mass: 1, x: 0,y: 0,velocity: [0,0],color: "white"})
 
-    constructor({name="",radius=10,mass=1,position=[0,0],vector=[0,0],color="white"} = {}) {
+    constructor({name="",radius=10,mass=1,position=[0,0],velocity=[0,0],color="white"} = {}) {
 
         this.name = name;
         this.radius = radius;
         this.mass = mass;
         this.color = color;
 
-        this.vector = [vector[0]/scale, vector[1]/scale];
+        this.velocity = [velocity[0]/scale, velocity[1]/scale];
         this.prevPostion = position;
         this.position = position;
         this.oldAcceleration = null;
@@ -36,12 +36,12 @@ class Body {
         this.position[1] += y;
     }
 
-    getScaleVector() {
-        return [this.vector[0]*currentTimestep, this.vector[1]*currentTimestep]
+    getScalevelocity() {
+        return [this.velocity[0]*currentTimestep, this.velocity[1]*currentTimestep]
     }
 
     getScaleVelocity() {
-        return Math.sqrt(Math.pow(this.vector[0]*currentTimestep, 2) + Math.pow(this.vector[1]*currentTimestep, 2));
+        return Math.sqrt(Math.pow(this.velocity[0]*currentTimestep, 2) + Math.pow(this.velocity[1]*currentTimestep, 2));
     }
 
     getPosition() {
@@ -194,8 +194,8 @@ class VelocityVerletSim {
                 body.oldAcceleration = [...body.newAcceleration];
             }
 
-            body.position[0] += body.vector[0] * VelocityVerletSim.currentTimestep + 0.5 * body.oldAcceleration[0] * Math.pow(VelocityVerletSim.currentTimestep, 2);
-            body.position[1] += body.vector[1] * VelocityVerletSim.currentTimestep + 0.5 * body.oldAcceleration[1] * Math.pow(VelocityVerletSim.currentTimestep, 2);
+            body.position[0] += body.velocity[0] * VelocityVerletSim.currentTimestep + 0.5 * body.oldAcceleration[0] * Math.pow(VelocityVerletSim.currentTimestep, 2);
+            body.position[1] += body.velocity[1] * VelocityVerletSim.currentTimestep + 0.5 * body.oldAcceleration[1] * Math.pow(VelocityVerletSim.currentTimestep, 2);
         }
 
         // Calculate acceleration based off new position
@@ -207,8 +207,8 @@ class VelocityVerletSim {
 
         // Update velocity with the average of the old acceleration and acceleration at the new position
         for (let body of this.bodies) {
-            body.vector[0] += 0.5 * (body.oldAcceleration[0] + body.newAcceleration[0]) * VelocityVerletSim.currentTimestep;
-            body.vector[1] += 0.5 * (body.oldAcceleration[1] + body.newAcceleration[1]) * VelocityVerletSim.currentTimestep;
+            body.velocity[0] += 0.5 * (body.oldAcceleration[0] + body.newAcceleration[0]) * VelocityVerletSim.currentTimestep;
+            body.velocity[1] += 0.5 * (body.oldAcceleration[1] + body.newAcceleration[1]) * VelocityVerletSim.currentTimestep;
             
             body.oldAcceleration = [...body.newAcceleration];
             body.newAcceleration = [0,0];
@@ -240,19 +240,19 @@ class VelocityVerletSim {
         let b1accel = force/body1.mass * VelocityVerletSim.currentTimestep / scale;
         let b2accel = force/body2.mass * VelocityVerletSim.currentTimestep / scale;
 
-        body1.vector[0] += (b2[0]-b1[0])/distance * b1accel;
-        body1.vector[1] += (b2[1]-b1[1])/distance * b1accel;
-        body2.vector[0] += (b1[0]-b2[0])/distance * b2accel;
-        body2.vector[1] += (b1[1]-b2[1])/distance * b2accel;
+        body1.velocity[0] += (b2[0]-b1[0])/distance * b1accel;
+        body1.velocity[1] += (b2[1]-b1[1])/distance * b1accel;
+        body2.velocity[0] += (b1[0]-b2[0])/distance * b2accel;
+        body2.velocity[1] += (b1[1]-b2[1])/distance * b2accel;
     }
 
     // Updates the acceleration for only the body1
     calculateAcceleration1(body1,body2) {
         let scaledForce = this.gravity(body1,body2) / scale 
         let distance = this.scaledDistance(body1,body2);
-        let normalizedVector = [(body2.position[0]-body1.position[0])/distance, (body2.position[1]-body1.position[1])/distance];
+        let normalizedVelocity = [(body2.position[0]-body1.position[0])/distance, (body2.position[1]-body1.position[1])/distance];
 
-        let b1accel = [normalizedVector[0] * scaledForce/body1.mass, normalizedVector[1] * scaledForce/body1.mass];
+        let b1accel = [normalizedVelocity[0] * scaledForce/body1.mass, normalizedVelocity[1] * scaledForce/body1.mass];
         body1.newAcceleration[0] += b1accel[0];
         body1.newAcceleration[1] += b1accel[1];
     }
@@ -261,35 +261,15 @@ class VelocityVerletSim {
     calculateAcceleration2(body1,body2) {
         let scaledForce = this.gravity(body1,body2) / scale 
         let distance = this.scaledDistance(body1,body2);
-        let normalizedVector = [(body2.position[0]-body1.position[0])/distance, (body2.position[1]-body1.position[1])/distance];
+        let normalizedVelocity = [(body2.position[0]-body1.position[0])/distance, (body2.position[1]-body1.position[1])/distance];
 
-        let b1accel = [normalizedVector[0] * scaledForce/body1.mass, normalizedVector[1] * scaledForce/body1.mass];
-        let b2accel = [-normalizedVector[0] * scaledForce/body2.mass, -normalizedVector[1] * scaledForce/body2.mass];
+        let b1accel = [normalizedVelocity[0] * scaledForce/body1.mass, normalizedVelocity[1] * scaledForce/body1.mass];
+        let b2accel = [-normalizedVelocity[0] * scaledForce/body2.mass, -normalizedVelocity[1] * scaledForce/body2.mass];
 
         body1.newAcceleration[0] += b1accel[0];
         body1.newAcceleration[1] += b1accel[1];
         body2.newAcceleration[0] += b2accel[0];
         body2.newAcceleration[1] += b2accel[1];
-    }
-}
-
-class Adjuster {
-
-    static clickDistance = 10;
-
-    constructor(bodies) {
-        this.bodies = body;
-        this.body = null;
-
-        addEventListener("mouseup", (event) => this.checkForBody(event));
-    }
-
-    checkForBody(event) {
-
-    }
-    
-
-    assignBody(body) {
     }
 }
 
