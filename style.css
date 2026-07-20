@@ -125,7 +125,7 @@ button:active {
 }
 
 .tooloptions {
-    margin: 2rem 2rem;
+    margin: 1rem 2rem;
 }
 
 select {
@@ -136,10 +136,15 @@ select {
     font-family: 'Open Sans', 'Helvetica Neue', 'Segoe UI', 'Calibri', 'Arial', sans-serif;
     font-size: 18px;
     color: #60666d;
+    width: 50%;
 }
 
 #focus {
-    width: 50%;
+    
+}
+
+#modify {
+
 }
 
 @media (max-width:768px) {

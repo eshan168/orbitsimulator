@@ -1,4 +1,3 @@
-
 class Display {
 
     constructor() {
@@ -33,6 +32,27 @@ class Display {
         this.rendering.drawState();
 
         requestAnimationFrame(() => this.animate());
+    }
+
+    createBody() {
+        this.timeControls.pause();
+        this.rendering.viewControls.resetViewToDefault();
+
+        let newBody = new Body({
+            name:"Test",
+            radius:1,
+            mass:10,
+            position:[0,0],
+            velocity:[0,10000],
+            color:"hsl(0, 0%, 100%)"
+        });
+
+        this.keys.push(newBody.name);
+        this.bodies.push(newBody);
+        this.keysToBodies[newBody.name] = newBody;
+        this.rendering.viewControls.adjuster.targetBody = this.bodies[this.bodies.length-1];
+
+        this.rendering.viewControls.updateMenus();
     }
 
     deleteBody(body) {
@@ -175,8 +195,8 @@ let triton = new Body({
 });
 
 
-let red_dwarf = new Body({name:"Red Dwarf", radius:0.5, mass:10**29, position:[400,130], velocity:[-10000,0], color:"hsl(9, 84%, 60%)"});
-let neutron = new Body({name:"Neutron Star", radius:0.1, mass:10**29, position:[400,125], velocity:[40000,0], color:"hsl(146, 10%, 44%)"});
+let red_dwarf = new Body({name:"Red Dwarf", radius:0.5, mass:10**29, position:[0,-170], velocity:[-10000,0], color:"hsl(9, 84%, 60%)"});
+let neutron = new Body({name:"Neutron Star", radius:0.2, mass:10**29, position:[0,-175], velocity:[40000,0], color:"hsl(146, 10%, 44%)"});
 
 const display = new Display();
 window.addEventListener('load', function() {

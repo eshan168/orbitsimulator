@@ -2,7 +2,7 @@ const gconstant = 6.674 * 10**-11
 const scale = 1000000000;
 
 const maxspeed = 600000;
-const minspeed = 50;
+const minspeed = 10;
 
 const linewidth = 3;
 const minfont = 0.01;

@@ -303,7 +303,6 @@ class ViewControls  {
 class Adjuster {
 
     static clickDistance = 10;
-    static velocityArrowScale = 1000000;
 
     constructor(display,viewControls,bodies) {
         this.display = display;
@@ -317,9 +316,12 @@ class Adjuster {
         this.xstart = 0;
         this.ystart = 0;
 
+        this.velocityArrowScale = 1000000;
+
         addEventListener("mouseup", (event) => this.mouseUp(event));
         addEventListener("mousedown", (event) => this.mouseDown(event));
         addEventListener("mousemove", (event) => this.mouseMove(event));
+        addEventListener("wheel", (event) => this.wheel(event));
     }
 
     mouseDown(event) {
@@ -338,14 +340,25 @@ class Adjuster {
         let pos = this.targetBody.position;
         let velDistance = this.clickDistance(event,vel);
         let posDistance = this.clickDistance(event,pos);
-
-        if (velDistance < Adjuster.clickDistance/this.viewControls.zoomScale && velDistance < posDistance) {
-            this.drag = true;
-            this.dragType = "vel";
-        }
-        else if (posDistance < Adjuster.clickDistance/this.viewControls.zoomScale && posDistance < velDistance) {
+        let minDistance = Adjuster.clickDistance/this.viewControls.zoomScale;
+        
+        // Pick Whichever distance is closest to their interaction zones, if neither is use the body radius or if not that then drag = false
+        if (posDistance < this.targetBody.radius && posDistance > minDistance && velDistance > minDistance) {
+            log(true);
             this.drag = true;
             this.dragType = "pos";
+        }
+        else if (posDistance < velDistance) {
+            if (posDistance < minDistance) {
+                this.drag = true;
+                this.dragType = "pos";
+            }
+        }
+        else if (velDistance < posDistance) {
+            if (velDistance < minDistance) {
+                this.drag = true;
+                this.dragType = "vel";
+            }
         }
         else {
             this.drag = false;
@@ -359,14 +372,15 @@ class Adjuster {
         let mouseUpCoords = [event.clientX-rect.left,event.clientY-rect.top];
 
         // if the click was a button or other object other than the canvas or the click was to translate, don't change the targetBody
-        let clickedAndNoTarget = (event.target.closest("canvas") && !this.targetBody);
-        let clickedAndTarget =  (this.mouseDownCoords[0] == mouseUpCoords[0] && this.mouseDownCoords[1] == mouseUpCoords[1] && this.targetBody);
-        if (clickedAndNoTarget || clickedAndTarget) {
+        let clickedCanvas = (event.target.closest("canvas"));
+        let didNotTranslate =  (this.mouseDownCoords[0] == mouseUpCoords[0] && this.mouseDownCoords[1] == mouseUpCoords[1]);
+        if (clickedCanvas && didNotTranslate) {
             this.targetBody = this.checkForBody(event);
         }
     }
 
     mouseMove(event) {
+        // log(this.drag);
         if (!this.drag || !this.targetBody) {
             return;
         }
@@ -374,7 +388,7 @@ class Adjuster {
         let rect = this.display.canvas.getBoundingClientRect()
         let x = event.clientX - rect.left;
         let y = event.clientY - rect.top;
-        
+
         if (this.dragType == "pos") {
             let translatex = (x-this.xstart)/this.viewControls.zoomScale;
             let translatey = (y-this.ystart)/this.viewControls.zoomScale;
@@ -383,16 +397,21 @@ class Adjuster {
             this.targetBody.position[1] += translatey;
             this.targetBody.trail.clearTrail();
         }
-        else if (this.dragType == "vel") {
+        if (this.dragType == "vel") {
             let relativePos = this.clickCoords(event);
             let bodyPos = this.targetBody.position;
 
-            this.targetBody.velocity[0] = (relativePos[0]-bodyPos[0])/Adjuster.velocityArrowScale*this.viewControls.zoomScale;
-            this.targetBody.velocity[1] = (relativePos[1]-bodyPos[1])/Adjuster.velocityArrowScale*this.viewControls.zoomScale;
+            this.targetBody.velocity[0] = (relativePos[0]-bodyPos[0])/this.velocityArrowScale*this.viewControls.zoomScale;
+            this.targetBody.velocity[1] = (relativePos[1]-bodyPos[1])/this.velocityArrowScale*this.viewControls.zoomScale;
         }
 
         this.xstart = x;
         this.ystart = y;
+    }
+
+    wheel(event) {
+        this.velocityArrowScale = Math.max(500000, Math.min(5000000, 1000000*Math.sqrt(this.viewControls.zoomScale)));
+        log(this.velocityArrowScale);
     }
 
     // Get the click position using ctx transformation and return distance
@@ -459,8 +478,8 @@ class Adjuster {
         }
 
         let pos = this.targetBody.position;
-        let x = this.targetBody.velocity[0]*Adjuster.velocityArrowScale/this.viewControls.zoomScale;
-        let y = this.targetBody.velocity[1]*Adjuster.velocityArrowScale/this.viewControls.zoomScale;
+        let x = this.targetBody.velocity[0]*this.velocityArrowScale/this.viewControls.zoomScale;
+        let y = this.targetBody.velocity[1]*this.velocityArrowScale/this.viewControls.zoomScale;
 
         return [pos[0]+x,pos[1]+y];
     }
