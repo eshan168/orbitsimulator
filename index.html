@@ -14,20 +14,71 @@
         </div>
 
         <div id="tools">
-            <select id="focus" class="tooloptions">
-                <option value="none">None</option>
-            </select>
 
-            <div class="tooloptions">
-                <input type="checkbox" class="checkbox" id="shownames" value="shownames" checked>
-                <label for="shownames" class="text">Show Name</label>
+            <!-- Focus Section -->
+            <div class="toolSection">
+                <label class="sectionLabel">Focus</label>
+
+                <select id="focus" class="tooloptions">
+                    <option value="none">None</option>
+                </select>
+
+                <div class="tooloptions">
+                    <input type="checkbox" class="checkbox" id="shownames" value="shownames" checked>
+                    <label for="shownames" class="text">Show Name</label>
+                </div>
             </div>
-        
-            <select id="modify" class="tooloptions">
-                <option value="none">None</option>
-            </select>
+
+            <!-- Create Body Section -->
+            <div class="toolSection">
+                <label class="sectionLabel">Create Body</label>
+
+                <select id="bodyType" class="tooloptions">
+                    <option value="star">Star</option>
+                    <option value="gas">Gas Body</option>
+                    <option value="rocky">Rocky Body</option>
+                </select>
+
+                <input type="number" id="massInput" class="tooloptions inputField" placeholder="Mass">
+
+                <button id="createBody" class="tooloptions">Create</button>
+            </div>
+
+            <!-- Modify Section -->
+            <div class="toolSection">
+                <label class="sectionLabel">Modify</label>
+
+                <!-- YOUR EXISTING MODIFY DROPDOWN -->
+                <select id="modify" class="tooloptions">
+                    <option value="none">None</option>
+                </select>
+
+                <div class="inputRow">
+                    <label class="text">Xpos</label>
+                    <input type="number" id="xpos" class="inputField">
+                </div>
+
+                <div class="inputRow">
+                    <label class="text">Ypos</label>
+                    <input type="number" id="ypos" class="inputField">
+                </div>
+
+                <div class="inputRow">
+                    <label class="text">Xvel</label>
+                    <input type="number" id="xvel" class="inputField">
+                </div>
+
+                <div class="inputRow">
+                    <label class="text">Yvel</label>
+                    <input type="number" id="yvel" class="inputField">
+                </div>
+
+                <button id="deleteBody" class="tooloptions">Delete Body</button>
+                <button id="deleteTrail" class="tooloptions">Delete Trail</button>
+            </div>
 
             <p id="debug">text</p>
+
         </div>
 
         <div id="lowerLeftButtons">

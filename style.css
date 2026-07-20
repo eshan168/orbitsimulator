@@ -23,12 +23,14 @@ html, body {
 #canvascontainer {
     display: block;
     width: 80%;
+    height: 100vh; /* fixes stretch */
 }
 
 canvas {
     background-color: rgb(0, 0, 15);
     height: 100%;
     width: 100%;
+    object-fit: contain; /* prevents distortion */
 }
 
 #lowerRightButtons {
@@ -139,12 +141,59 @@ select {
     width: 50%;
 }
 
-#focus {
-    
+/* Section layout */
+.toolSection {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
-#modify {
+/* Section titles */
+.sectionLabel {
+    color: white;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
 
+/* Inputs */
+.inputField {
+    width: 60%;
+    padding: 0.4rem;
+    border-radius: 6px;
+    border: none;
+    margin-top: 0.3rem;
+    font-size: 0.9rem;
+}
+
+/* Label + input row */
+.inputRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 70%;
+    margin: 0.3rem 0;
+}
+
+.inputRow label {
+    font-size: 0.9rem;
+}
+
+/* Toolbar consistency */
+#tools button {
+    width: 60%;
+    margin-top: 0.5rem;
+}
+
+#tools select {
+    width: 60%;
+}
+
+/* Checkbox spacing */
+.checkbox {
+    margin-right: 0.5rem;
 }
 
 @media (max-width:768px) {
