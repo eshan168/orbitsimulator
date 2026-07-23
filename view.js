@@ -130,6 +130,7 @@ class Rendering {
 }
 
 const focusMenu = document.getElementById("focus");
+const modifyMenu = document.getElementById("modify");
 
 class ViewControls  {
 
@@ -182,7 +183,6 @@ class ViewControls  {
     }
 
     mouseDown(event) {
-        // log(event.clientX);
         let rect = this.display.canvas.getBoundingClientRect()
         this.xstart = event.clientX - rect.left;
         this.ystart = event.clientY - rect.top;
@@ -291,6 +291,11 @@ class ViewControls  {
         for (let key of this.keys) {
             focusMenu.add(new Option(key));
         }
+
+        modifyMenu.innerHTML = "";
+        for (let key of this.keys) {
+            modifyMenu.add(new Option(key));
+        }
     }
 
     getCenter() {
@@ -344,7 +349,6 @@ class Adjuster {
         
         // Pick Whichever distance is closest to their interaction zones, if neither is use the body radius or if not that then drag = false
         if (posDistance < this.targetBody.radius && posDistance > minDistance && velDistance > minDistance) {
-            log(true);
             this.drag = true;
             this.dragType = "pos";
         }
@@ -380,7 +384,6 @@ class Adjuster {
     }
 
     mouseMove(event) {
-        // log(this.drag);
         if (!this.drag || !this.targetBody) {
             return;
         }
@@ -411,7 +414,6 @@ class Adjuster {
 
     wheel(event) {
         this.velocityArrowScale = Math.max(500000, Math.min(5000000, 1000000*Math.sqrt(this.viewControls.zoomScale)));
-        log(this.velocityArrowScale);
     }
 
     // Get the click position using ctx transformation and return distance

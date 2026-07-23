@@ -12,6 +12,7 @@ html, body {
 }
 
 #debug {
+    margin-top: 0rem;
     color: white;
 }
 
@@ -82,7 +83,7 @@ button {
     align-items: center;
     background-color: initial;
     background-image: linear-gradient(rgb(70, 77, 85), rgb(37, 41, 46));
-    border-radius: 8px;
+    border-radius: 0.5rem;
     border-width: 0;
     box-shadow: 0 10px 20px rgba(0, 0, 0, .1),0 3px 6px rgba(0, 0, 0, .05);
     box-sizing: border-box;
@@ -139,6 +140,7 @@ select {
     font-size: 18px;
     color: #60666d;
     width: 50%;
+    border-radius: 0.3rem;
 }
 
 /* Section layout */
@@ -150,19 +152,43 @@ select {
     margin-bottom: 1.5rem;
 }
 
+#focusSection {
+    margin-top: 0.5rem;
+}
+
+#focus {
+    margin-bottom: 0rem;
+}
+
+#bodyType {
+    margin-bottom: 0.3rem;
+}
+
+#modify {
+    margin-bottom: 0.75rem;
+}
+
+#deleteBody {
+    margin-bottom: 0.25rem;
+}
+
+#deleteTrail {
+    margin-bottom: 0.25rem;
+}
+
 /* Section titles */
 .sectionLabel {
     color: white;
     font-size: 1.1rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
     font-weight: bold;
 }
 
 /* Inputs */
 .inputField {
-    width: 60%;
+    width: 70%;
     padding: 0.4rem;
-    border-radius: 6px;
+    border-radius: 0.3rem;
     border: none;
     margin-top: 0.3rem;
     font-size: 0.9rem;
