@@ -1,18 +1,19 @@
+const distanceInputScale = 10**6;
+const speedInputScale = 10**3;
+let massInputScale = 10**30;
+
 class Rendering {
 
     static renderingArea = 20000;
 
-    constructor(display,bodies,keys,keysToBodies) {
-        this.bodies = bodies;
-        this.keys = keys;
-        this.keysToBodies = keysToBodies;
-
+    constructor(display) {
         this.display = display
+        
         this.tools = document.getElementById("tools");
         this.debug = document.getElementById("debug");
         this.nameVisibility = document.getElementById("shownames");
 
-        this.viewControls = new ViewControls(this.display,this.bodies,this.keys,this.keysToBodies);
+        this.viewControls = new ViewControls(this.display);
     }
     
     drawState() {
@@ -22,11 +23,11 @@ class Rendering {
         this.display.ctx.lineWidth = 2/this.viewControls.zoomScale;
         this.display.ctx.strokeRect(-Rendering.renderingArea, -Rendering.renderingArea, 2 * Rendering.renderingArea, 2 * Rendering.renderingArea);
 
-        for (let body of this.bodies) {
+        for (let body of this.display.bodies) {
             // If body is beyond edge delete it 
             if (!Rendering.insideRenderingArea(body.position)) {
-                this.display.deleteBody(body);
-                this.viewControls.adjuster.targetBody = null;
+                this.display.bodyControls.deleteBody(body);
+                this.viewControls.adjuster.changeTargetBody(null);
                 continue;
             }
 
@@ -48,11 +49,26 @@ class Rendering {
         this.display.ctx.fill();
 
         // Draw the body's name a certian distance from the body and font size
+        let zoom = this.viewControls.zoomScale;
         if (this.nameVisibility.checked) {
             this.display.ctx.fillStyle = "white";
             this.display.ctx.font = body.font;
-            this.display.ctx.fillText(body.name,body.position[0]+body.textoffset,body.position[1]-body.textoffset);
+            if (body.radius > 50/zoom) {
+                let lighting = Number(body.color.substring(body.color.length-4,body.color.length-2));
+                if (lighting > 50) {
+                    this.display.ctx.fillStyle = "hsl(0, 0%, 14%)";
+                }
+
+                let textMetrics = this.display.ctx.measureText(body.name)
+                let width = textMetrics.width;
+                let height = textMetrics.actualBoundingBoxAscent + textMetrics.actualBoundingBoxDescent;
+                this.display.ctx.fillText(body.name,body.position[0]-width/2,body.position[1] + 0.1*(body.radius/0.696));
+            }
+            else {
+                this.display.ctx.fillText(body.name,body.position[0]+body.textoffset,body.position[1]-body.textoffset);   
+            }
         }
+
     }
 
     // Draw compressedTrail and then tempTrial using quadriatic curves where the midpoints are the points and the actual points are the control points
@@ -129,8 +145,7 @@ class Rendering {
     }
 }
 
-const focusMenu = document.getElementById("focus");
-const modifyMenu = document.getElementById("modify");
+const focusMenu = document.getElementById("focusMenu");
 
 class ViewControls  {
 
@@ -140,11 +155,8 @@ class ViewControls  {
     static maxZoom = 5000;
     static minZoom = 0.02;
 
-    constructor(display,bodies,keys,keysToBodies) {
+    constructor(display) {
         this.display = display;
-        this.bodies = bodies;
-        this.keys = keys;
-        this.keysToBodies = keysToBodies;
 
         this.currentZoom = 1;
         this.zoomScale = 1;
@@ -166,9 +178,9 @@ class ViewControls  {
 
         focusMenu.addEventListener("change", () => this.changefocus());
         this.changefocus();
-        this.updateMenus();
+        this.display.updateMenus();
 
-        this.adjuster = new Adjuster(this.display,this,this.bodies);
+        this.adjuster = new Adjuster(this.display,this);
 
         this.resetView = document.getElementById("resetView");
         this.resetView.addEventListener("click", () => this.resetViewToDefault());
@@ -176,13 +188,14 @@ class ViewControls  {
         // Make display.canvas full size and center orbits
         this.display.canvas.width = window.innerWidth*0.8;
         this.display.canvas.height = window.innerHeight;
-
-        // this.display.ctx.setTransform(1,0,0,1,0,0);
-        // this.display.ctx.translate(window.innerWidth*0.4-this.center[0],window.innerHeight*0.5-this.center[1]);
         this.resetViewToDefault();
     }
 
     mouseDown(event) {
+        if (!event.target.closest("canvas")) {
+            return;
+        }
+
         let rect = this.display.canvas.getBoundingClientRect()
         this.xstart = event.clientX - rect.left;
         this.ystart = event.clientY - rect.top;
@@ -223,7 +236,7 @@ class ViewControls  {
         }
 
         this.zoomScale *= this.currentZoom;
-        this.bodies.forEach((body) => this.updateText(body));
+        this.display.bodies.forEach((body) => this.updateText(body));
 
         let xoffset = event.clientX-(this.display.canvas.width/2);
         let yoffset = event.clientY-(this.display.canvas.height/2);
@@ -248,16 +261,17 @@ class ViewControls  {
             this.display.ctx.translate(widthtranslation,heighttranslation);
             this.currentZoom = 1;
         }
+        // log(this.zoomScale);
     }
 
     updateText(body) {
         body.textoffset = (body.radius+5/this.zoomScale)
-        body.font = `${Math.max(Math.max(10/this.zoomScale,body.radius), minfont)}px Arial`;
+        body.font = `${Math.max(Math.max(10/this.zoomScale,body.radius/2), minfont)}px Arial`;
     }
 
     changefocus() {
-        this.focusbody = this.keysToBodies[focusMenu.value];
-        if (this.focusbody == null) {
+        this.focusbody = this.display.keysToBodies[focusMenu.value];
+        if (!this.focusbody) {
             return;
         }
         this.center = this.getCenter();
@@ -282,20 +296,7 @@ class ViewControls  {
         this.display.ctx.setTransform(1,0,0,1,0,0);
         this.display.ctx.translate(this.display.canvas.width*0.5,this.display.canvas.height*0.5);
     
-        this.bodies.forEach((body) => this.updateText(body));
-    }
-
-    updateMenus() {
-        focusMenu.innerHTML = "";
-        focusMenu.add(new Option("None"));
-        for (let key of this.keys) {
-            focusMenu.add(new Option(key));
-        }
-
-        modifyMenu.innerHTML = "";
-        for (let key of this.keys) {
-            modifyMenu.add(new Option(key));
-        }
+        this.display.bodies.forEach((body) => this.updateText(body));
     }
 
     getCenter() {
@@ -305,14 +306,23 @@ class ViewControls  {
     }
 }
 
+const adjustMenu = document.getElementById("adjustMenu");
+
+const xpInput = document.getElementById("xpos");
+const ypInput = document.getElementById("ypos");
+const xvInput = document.getElementById("xvel");
+const yvInput = document.getElementById("yvel");
+
+const deleteBody = document.getElementById("deleteBody");
+const deleteTrail = document.getElementById("deleteTrail");
+
 class Adjuster {
 
     static clickDistance = 10;
 
-    constructor(display,viewControls,bodies) {
+    constructor(display,viewControls) {
         this.display = display;
         this.viewControls = viewControls;
-        this.bodies = bodies;
         this.targetBody = null;
 
         this.drag = false;
@@ -322,11 +332,16 @@ class Adjuster {
         this.ystart = 0;
 
         this.velocityArrowScale = 1000000;
-
         addEventListener("mouseup", (event) => this.mouseUp(event));
         addEventListener("mousedown", (event) => this.mouseDown(event));
         addEventListener("mousemove", (event) => this.mouseMove(event));
         addEventListener("wheel", (event) => this.wheel(event));
+
+        addEventListener("keydown", () => this.changeTargetBodyStat(event));
+        adjustMenu.addEventListener("change", () => this.changeTargetBody(this.display.keysToBodies[adjustMenu.value]));
+
+        deleteBody.addEventListener("click", () => { if (this.targetBody) this.display.bodyControls.deleteBody(this.targetBody)});
+        deleteTrail.addEventListener("click", () => { if (this.targetBody) this.targetBody.trail.clearTrail()});
     }
 
     mouseDown(event) {
@@ -379,7 +394,7 @@ class Adjuster {
         let clickedCanvas = (event.target.closest("canvas"));
         let didNotTranslate =  (this.mouseDownCoords[0] == mouseUpCoords[0] && this.mouseDownCoords[1] == mouseUpCoords[1]);
         if (clickedCanvas && didNotTranslate) {
-            this.targetBody = this.checkForBody(event);
+            this.changeTargetBody(this.checkForBody(event));
         }
     }
 
@@ -416,13 +431,67 @@ class Adjuster {
         this.velocityArrowScale = Math.max(500000, Math.min(5000000, 1000000*Math.sqrt(this.viewControls.zoomScale)));
     }
 
+    changeTargetBody(body) {
+        this.targetBody = body;
+        if (body){
+            adjustMenu.value = body.name;
+        }
+        else {
+            xpInput.value = "";
+            ypInput.value = "";
+            xvInput.value = "";
+            yvInput.value = "";
+            adjustMenu.value = "None";
+        }
+    }
+
+    updateAdjusterText() {
+        if (!this.targetBody) {
+            return;
+        }
+
+        // console.log(this.targetBody.position+" "+this.targetBody.velocity);
+        if (document.activeElement != xpInput) xpInput.value = round(this.targetBody.position[0], 4);
+        if (document.activeElement != ypInput) ypInput.value = round(this.targetBody.position[1], 4);
+        if (document.activeElement != xvInput) xvInput.value = round(this.targetBody.velocity[0]*scale / speedInputScale, 4);
+        if (document.activeElement != yvInput) yvInput.value = round(this.targetBody.velocity[1]*scale / speedInputScale, 4);
+    }
+
+    changeTargetBodyStat(event) {
+        let active = document.activeElement;
+        if (event.key != "Enter" || !this.targetBody) {
+            return;
+        }
+
+        if (active == xpInput) {
+            this.targetBody.position[0] = Number(xpInput.value);
+            this.targetBody.trail.clearTrail();
+        }
+        else if (active == ypInput) {
+            this.targetBody.position[1] = Number(ypInput.value);
+            this.targetBody.trail.clearTrail();
+        } 
+        else if (active == xvInput) {
+            this.targetBody.velocity[0] = Number(xvInput.value/scale * speedInputScale);
+        }  
+        else if (active == yvInput) {
+            this.targetBody.velocity[1] = Number(yvInput.value/scale * speedInputScale);
+        }
+
+        document.activeElement.disabled = true;
+        xpInput.disabled = false;
+        ypInput.disabled = false;
+        xvInput.disabled = false;
+        yvInput.disabled = false;
+    }  
+
     // Get the click position using ctx transformation and return distance
     clickDistance(event,coords) {
         let rect = this.display.canvas.getBoundingClientRect()
         let transform = this.display.ctx.getTransform();
         let x = (event.clientX - rect.left - transform.e)/transform.a;
         let y = (event.clientY - rect.top - transform.f)/transform.d;
-        return Math.sqrt(Math.pow(coords[0]-x,2) + Math.pow(coords[1]-y,2));
+        return Math.sqrt((coords[0]-x)**2 + (coords[1]-y)**2);
     }
 
     // Get the click coordinates using ctx transformation and return distance
@@ -453,7 +522,7 @@ class Adjuster {
         let minDistance = 1e99;
         let minBody = null;
 
-        for (let body of this.bodies) {
+        for (let body of this.display.bodies) {
             let distance = this.clickDistance(event,body.position);
             if (distance < body.radius) {
                 minBody = body;
@@ -489,9 +558,9 @@ class Adjuster {
 
 class TimeControls {
 
-    constructor(bodies) {
-        this.bodies = bodies;
-
+    constructor(display) {
+        this.display = display;
+        
         this.backward = document.getElementById("backward");
         this.forward = document.getElementById("forward");
         this.reverse = document.getElementById("reverse");
@@ -500,7 +569,7 @@ class TimeControls {
         this.backward.addEventListener("click", () => this.skipbackward());
         this.forward.addEventListener("click", () => this.skipforward());
         this.reverse.addEventListener("click", () => this.reverseTime());
-        this.pauseButton.addEventListener("click", () => this.pause());
+        this.pauseButton.addEventListener("click", () => this.togglePause());
 
         this.paused = false;
     }
@@ -513,28 +582,28 @@ class TimeControls {
             this.reverse.innerText = "Reverse";
         }
 
-        for (let body of this.bodies) {
+        for (let body of this.display.bodies) {
             body.trail.clearTrail();
         }
     }
 
     skipbackward() {
-        if (VelocityVerletSim.currentTimestep*0.5 > minspeed && !this.paused) {
+        if (Math.abs(VelocityVerletSim.currentTimestep)*0.5 > minspeed && !this.paused) {
             VelocityVerletSim.currentTimestep *= 0.5;
             VelocityVerletSim.extrasteps = Math.max(VelocityVerletSim.extraSteps-1, VelocityVerletSim.minSteps);
-            Trail.adjustTrailsToTime(false,this.bodies);
+            Trail.adjustTrailsToTime(false,this.display.bodies);
         }
     }
 
     skipforward() {
-        if (VelocityVerletSim.currentTimestep*2 < maxspeed && !this.paused) {
+        if (Math.abs(VelocityVerletSim.currentTimestep)*2 < maxspeed && !this.paused) {
             VelocityVerletSim.currentTimestep *= 2;
             VelocityVerletSim.extrasteps = Math.min(VelocityVerletSim.extraSteps+1, VelocityVerletSim.maxSteps);
-            Trail.adjustTrailsToTime(true,this.bodies);
+            Trail.adjustTrailsToTime(true,this.display.bodies);
         }
     }
 
-    pause() {
+    togglePause() {
         this.paused = !this.paused;
         if (this.paused) {
             this.pauseButton.innerText = "▶︎";
@@ -543,12 +612,17 @@ class TimeControls {
             this.pauseButton.innerText = "⏸︎";
         }
     }
+
+    pause() {
+        this.paused = true;
+        this.pauseButton.innerText = "▶︎";
+    }
 }
 
 function log(text) {
     debug.innerText = text;
 }
 
-function round(num) {
-    return Math.round(num*1000)/1000;
+function round(num,precision) {
+    return Math.round(num*10**precision)/10**precision;
 }

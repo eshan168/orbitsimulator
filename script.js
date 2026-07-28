@@ -2,19 +2,19 @@ class Display {
 
     constructor() {
         this.canvas = document.getElementById("canvas");
-        this.ctx = canvas.getContext("2d");
+        this.ctx = this.canvas.getContext("2d");
+
+        let defaultSystem = new Solar_System();
 
         // this.bodies = [sun,mercury];
-        this.bodies = [sun,mercury,venus,earth,moon,mars,jupiter,ganymede,europa,saturn,uranus,neptune,triton];
-        this.keys = this.bodies.map(b => b.name);
-        this.keysToBodies = Object.fromEntries(this.bodies.map(b => [b.name, b]));
+        this.bodies = defaultSystem.bodies;
+        this.keys = defaultSystem.keys;
+        this.keysToBodies = defaultSystem.keysToBodies;
 
-        this.simulator = new VelocityVerletSim(this.bodies);
-        this.rendering = new Rendering(this,this.bodies,this.keys,this.keysToBodies);
-        this.timeControls = new TimeControls(this.bodies);
-
-        this.clearAll = document.getElementById("clearAll");
-        this.clearAll.addEventListener("click", () => this.clearAllBodies());
+        this.simulator = new VelocityVerletSim(this);
+        this.rendering = new Rendering(this);
+        this.timeControls = new TimeControls(this);
+        this.bodyControls = new BodyControls(this);
     }
 
     animate() {
@@ -28,177 +28,146 @@ class Display {
             }
         }
         
+        this.rendering.viewControls.adjuster.updateAdjusterText();
         this.rendering.viewControls.followFocus();
         this.rendering.drawState();
 
         requestAnimationFrame(() => this.animate());
     }
 
-    createBody() {
-        this.timeControls.pause();
-        this.rendering.viewControls.resetViewToDefault();
-
-        let newBody = new Body({
-            name:"Test",
-            radius:1,
-            mass:10,
-            position:[0,0],
-            velocity:[0,10000],
-            color:"hsl(0, 0%, 100%)"
-        });
-
-        this.keys.push(newBody.name);
-        this.bodies.push(newBody);
-        this.keysToBodies[newBody.name] = newBody;
-        this.rendering.viewControls.adjuster.targetBody = this.bodies[this.bodies.length-1];
-
-        this.rendering.viewControls.updateMenus();
-    }
-
-    deleteBody(body) {
-        let index = this.bodies.indexOf(body);
-        if (index > -1) {
-            this.bodies.splice(index, 1);
-            this.keys.splice(index, 1);
-            this.keysToBodies = Object.fromEntries(this.bodies.map(b => [b.name, b]));
+    updateMenus() {
+        focusMenu.innerHTML = "";
+        focusMenu.add(new Option("None"));
+        for (let key of this.keys) {
+            focusMenu.add(new Option(key));
         }
-        this.simulator.bodies = this.bodies;
-        this.rendering.bodies = this.bodies;
-        this.rendering.viewControls.bodies = this.bodies;
-        this.timeControls.bodies = this.bodies;
 
-        this.rendering.viewControls.updateMenus();
-    }
-
-    clearAllBodies() {
-        while (this.bodies.length > 0) {
-            this.deleteBody(this.bodies[0]);
+        adjustMenu.innerHTML = "";
+        adjustMenu.add(new Option("None"));
+        for (let key of this.keys) {
+            adjustMenu.add(new Option(key));
         }
     }
 }
 
-let sun = new Body({
-    name:"Sun",
-    radius:1.392,
-    mass:1.989e30,
-    position:[0,0],
-    velocity:[0,0],
-    color:"hsl(51, 98%, 52%)"
-});
+const bodyType = document.getElementById("bodyTypeMenu");
+const massInput = document.getElementById("massInput");
+const nameInput = document.getElementById("nameInput");
+const createButton = document.getElementById("createBody");
 
-let mercury = new Body({
-    name:"Mercury",
-    radius:0.004881,
-    mass:3.3010e23,
-    position:[-46, 0],
-    velocity:[0,58980],
-    color:"hsl(0, 9%, 63%)"
-});
+class BodyControls {
+    constructor(display) {
+        this.display = display;
 
-let venus = new Body({
-    name:"Venus",
-    radius:0.0121036,
-    mass:4.8673e24,
-    position:[-107.48, 0],
-    velocity:[0,35260],
-    color:"hsl(40, 100%, 70%)"
-});
+        this.clearAll = document.getElementById("clearAll");
+        this.clearAll.addEventListener("click", () => this.clearAllBodies());
 
-let earth = new Body({
-    name:"Earth",
-    radius:0.0121036,
-    mass:5.972e24,
-    position:[-152.1, 0],
-    velocity:[0,29290],
-    color:"hsl(202, 100%, 41%)"
-});
+        createButton.addEventListener("click", () => this.createBody());
+        bodyType.addEventListener("change", () => this.changeMassPlaceholder());
+    }
 
-let moon = new Body({
-    name:"Moon",
-    radius:0.003475,
-    mass:7.35e22,
-    position:[-152.505, 0],
-    velocity:[0,30313.1],
-    color:"hsl(0, 0%, 55%)"
-});
+    createBody() {
+        if (massInput.value == 0 || nameInput.value == "") {
+            return;
+        }
 
-let mars = new Body({
-    name:"Mars",
-    radius:0.0067924,
-    mass:6.4169e23,
-    position:[-206.65, 0],
-    velocity:[0,26500],
-    color:"hsl(27, 100%, 46%)"
-});
+        this.display.timeControls.pause();
+        let center = this.display.rendering.viewControls.getCenter();
+        let mass = massInput.value * massInputScale;
 
-let jupiter = new Body({
-    name:"Jupiter",
-    radius:0.142984,
-    mass:1.89813e27,
-    position:[-740.595, 0],
-    velocity:[0,13720],
-    color:"hsl(33, 100%, 26%)"
-});
+        let newBody = new Body({
+            name: nameInput.value,
+            radius: this.massToRadius(mass),
+            mass: mass,
+            position: [center[0],center[1]],
+            velocity: [0,10000],
+            color: this.bodyToColor()
+        });
 
-let ganymede = new Body({
-    name:"Ganymede",
-    radius:0.0052682,
-    mass:1.4819e23,
-    position:[-741.6642, 0],
-    velocity:[0,24600],
-    color:"hsl(189, 3%, 57%)"
-});
+        this.display.keys.push(newBody.name);
+        this.display.bodies.push(newBody);
+        this.display.keysToBodies[newBody.name] = newBody;
+        this.display.updateMenus();
 
-let europa = new Body({
-    name:"Europa",
-    radius:0.0031216,
-    mass:4.79984e22,
-    position:[-741.259862, 0],
-    velocity:[0,27464],
-    color:"hsl(187, 17%, 59%)"
-});
+        this.display.rendering.viewControls.adjuster.changeTargetBody(newBody);
+        this.display.rendering.viewControls.updateText(newBody);
+    }
 
-let saturn = new Body({
-    name:"Saturn",
-    radius:0.120536,
-    mass:5.6851e26,
-    position:[-1357.554, 0],
-    velocity:[0,10140],
-    color:"hsl(51, 100%, 82%)"
-});
+    deleteBody(body) {
+        if (!body) {
+            return;
+        }
 
-let uranus = new Body({
-    name:"Uranus",
-    radius:0.051118,
-    mass:8.6849e25,
-    position:[-2732.696, 0],
-    velocity:[0,7300],
-    color:"hsl(174, 100%, 83%)"
-});
+        let index = this.display.bodies.indexOf(body);
+        if (index > -1) {
+            this.display.bodies.splice(index, 1);
+            this.display.keys.splice(index, 1);
+            this.display.keysToBodies = Object.fromEntries(this.display.bodies.map(body => [body.name, body]));
+        }
 
-let neptune = new Body({
-    name:"Neptune",
-    radius:0.049528,
-    mass:1.0244e26,
-    position:[-4471.05, 0],
-    velocity:[0,5470],
-    color:"hsl(246, 68%, 44%)"
-});
+        this.display.updateMenus();
+        this.display.rendering.viewControls.adjuster.changeTargetBody(null);
+    }
 
-let triton = new Body({
-    name:"Triton",
-    radius:0.0027068,
-    mass:2.1389e22,
-    position:[-4471.404759, 0],
-    velocity:[0,9860],
-    color:"hsl(117, 8%, 52%)"
-});
+    clearAllBodies() {
+        while (this.display.bodies.length > 0) {
+            this.deleteBody(this.display.bodies[0]);
+        }
+    }
 
+    // Return the estimated radius in scaled units given the mass in kgs
+    massToRadius(mass) {
+        if (bodyType.value == "star") {
+            return 6.957*10**-1 * (mass/(1.989*10**30))**(4/5);
+        }
+        else if (bodyType.value == "gas") {
+            return 6.9911*10**-2 * (mass/(1.898*10**27))**(1/8);
+        }
+        else if (bodyType.value == "solid") {
+            return 6.371*10**-3 * (mass/(5.972*10**24))**(1/3);
+        }
+    }
 
-let red_dwarf = new Body({name:"Red Dwarf", radius:0.5, mass:10**29, position:[0,-170], velocity:[-10000,0], color:"hsl(9, 84%, 60%)"});
-let neutron = new Body({name:"Neutron Star", radius:0.2, mass:10**29, position:[0,-175], velocity:[40000,0], color:"hsl(146, 10%, 44%)"});
+    bodyToColor() {
+        if (bodyType.value == "star") {
+            let type = Math.floor(Math.random()*5);
+            if (type == 0) return `hsl(${Math.random() * 10}, ${Math.random() * 30 + 70}%, ${Math.random() * 20 + 40}%)`; // Red
+            if (type == 1) return `hsl(${Math.random() * 15 + 10}, ${Math.random() * 40 + 60}%, ${Math.random() * 20 + 50}%)`; // Orange
+            if (type == 2) return `hsl(${Math.random() * 15 + 25}, ${Math.random() * 40 + 60}%, ${Math.random() * 20 + 60}%)`; // Yellow
+            if (type == 4) return `hsl(${Math.random() * 40 + 200}, ${Math.random() * 40 + 60}%, ${Math.random() * 20 + 70}%)`; // Blue
+        }
+        else if (bodyType.value == "gas") {
+            let type = Math.floor(Math.random()*3);
+            if (type == 0) return `hsl(${Math.random() * 40 + 20}, ${Math.random() * 50 + 40}%, ${Math.random() * 40 + 40}%)`; // Brown
+            if (type == 1) return `hsl(${Math.random() * 30 + 40}, ${Math.random() * 40 + 20}%, ${Math.random() * 30 + 70}%)`; // Yellow
+            if (type == 2) return `hsl(${Math.random() * 40 + 180}, ${Math.random() * 50 + 40}%, ${Math.random() * 30 + 50}%)`; // Blue/Lightblue
+        }
+        else if (bodyType.value == "solid") {
+            let type = Math.floor(Math.random()*3);
+            if (type == 0) return `hsl(${Math.random() * 30 + 20}, ${Math.random() * 40 + 30}%, ${Math.random() * 30 + 20}%)`; // Brown
+            if (type == 1) return `hsl(${Math.random() * 40 + 180}, ${Math.random() * 40 + 40}%, ${Math.random() * 30 + 70}%)`; // Icy
+            if (type == 2) return `hsl(${0}, ${Math.random() * 10}%, ${Math.random() * 50 + 30}%)`; // Gray
+        }
+    }
 
-const display = new Display();
+    changeMassPlaceholder() {
+        log(bodyType.value)
+        if (bodyType.value == "star") {
+            massInput.placeholder = "10^30 kg (0.5 suns)";
+            massInputScale = 10**30;
+        }
+        else if (bodyType.value == "gas") {
+            massInput.placeholder = "10^25 kg (0.1 neptunes)";
+            massInputScale = 10**25;
+        }
+        else if (bodyType.value == "solid") {
+            massInput.placeholder = "10^22 kg (0.15 moons)";
+            massInputScale = 10**22;
+        }
+    }
+}
+
 window.addEventListener('load', function() {
+    const display = new Display();
     display.animate();
 })

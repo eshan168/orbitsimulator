@@ -41,7 +41,7 @@ class Body {
     }
 
     getScaleVelocity() {
-        return Math.sqrt(Math.pow(this.velocity[0]*currentTimestep, 2) + Math.pow(this.velocity[1]*currentTimestep, 2));
+        return Math.sqrt(this.velocity[0]*currentTimestep**2 + this.velocity[1]*currentTimestep**2);
     }
 
     getPosition() {
@@ -53,10 +53,9 @@ class Trail {
 
     static compressedTrailPeriod = 8;
 
-    constructor(body,timeControls) {
+    constructor(body) {
 
         this.body = body;
-        this.timeControls = timeControls;
 
         // tempTrail stores the last (compressedTrailPeriod) positions so there's a smooth path coming out fo the planet
         // Once tempTrail reaches a certain length add the last point to compressed Trail and clear tempTrail to prevent the list from getting to long
@@ -81,9 +80,6 @@ class Trail {
         if (this.compressedTrail.length >= this.trailLength ) {
             this.compressedTrail.shift();
         }
-        // if (!this.timeControls.paused) {
-        //     this.tempTrail.push(this.body.getPosition());
-        // }
         this.tempTrail.push(this.body.getPosition());
     }
 
@@ -95,7 +91,7 @@ class Trail {
 
     // Make sure trails stay the same length when timestep is increased an decreased
     static adjustTrailsToTime(faster,bodies) {
-        let newPeriod = Math.max(1, 8 * VelocityVerletSim.defaultTimestep / VelocityVerletSim.currentTimestep);
+        let newPeriod = Math.max(1, 8 * VelocityVerletSim.defaultTimestep / Math.abs(VelocityVerletSim.currentTimestep));
         if (newPeriod == Trail.compressedTrailPeriod && faster) {
             for (let body of bodies) {
                 body.trail.trailLength /= 2;
@@ -175,13 +171,13 @@ class VelocityVerletSim {
     static maxSteps = 8;
     static minSteps = 1;
 
-    constructor(bodies) {
-        this.bodies = bodies
+    constructor(display) {
+        this.display = display
 
         // Inital acceleration calcululations
-        for (let i=0; i<this.bodies.length-1; i++) {
-            for (let j=i+1; j<this.bodies.length; j++){
-                this.calculateAcceleration2(this.bodies[i],this.bodies[j]);
+        for (let i=0; i<this.display.bodies.length-1; i++) {
+            for (let j=i+1; j<this.display.bodies.length; j++){
+                this.calculateAcceleration2(this.display.bodies[i],this.display.bodies[j]);
             }
         }
     }
@@ -189,24 +185,24 @@ class VelocityVerletSim {
     simulateStep() {
 
         // Update Position based on velocity and previous acceleration
-        for (let body of this.bodies) {
+        for (let body of this.display.bodies) {
             if (body.oldAcceleration == null) {
                 body.oldAcceleration = [...body.newAcceleration];
             }
 
-            body.position[0] += body.velocity[0] * VelocityVerletSim.currentTimestep + 0.5 * body.oldAcceleration[0] * Math.pow(VelocityVerletSim.currentTimestep, 2);
-            body.position[1] += body.velocity[1] * VelocityVerletSim.currentTimestep + 0.5 * body.oldAcceleration[1] * Math.pow(VelocityVerletSim.currentTimestep, 2);
+            body.position[0] += body.velocity[0] * VelocityVerletSim.currentTimestep + 0.5 * body.oldAcceleration[0] * VelocityVerletSim.currentTimestep**2;
+            body.position[1] += body.velocity[1] * VelocityVerletSim.currentTimestep + 0.5 * body.oldAcceleration[1] * VelocityVerletSim.currentTimestep**2;
         }
 
         // Calculate acceleration based off new position
-        for (let i=0; i<this.bodies.length-1; i++) {
-            for (let j=i+1; j<this.bodies.length; j++){
-                this.calculateAcceleration2(this.bodies[i],this.bodies[j]);
+        for (let i=0; i<this.display.bodies.length-1; i++) {
+            for (let j=i+1; j<this.display.bodies.length; j++){
+                this.calculateAcceleration2(this.display.bodies[i],this.display.bodies[j]);
             }
         }
 
         // Update velocity with the average of the old acceleration and acceleration at the new position
-        for (let body of this.bodies) {
+        for (let body of this.display.bodies) {
             body.velocity[0] += 0.5 * (body.oldAcceleration[0] + body.newAcceleration[0]) * VelocityVerletSim.currentTimestep;
             body.velocity[1] += 0.5 * (body.oldAcceleration[1] + body.newAcceleration[1]) * VelocityVerletSim.currentTimestep;
             

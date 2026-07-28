@@ -137,7 +137,7 @@ select {
     width: 100%;
     margin: 0 auto;
     font-family: 'Open Sans', 'Helvetica Neue', 'Segoe UI', 'Calibri', 'Arial', sans-serif;
-    font-size: 18px;
+    font-size: 1.25rem;
     color: #60666d;
     width: 50%;
     border-radius: 0.3rem;
@@ -164,7 +164,7 @@ select {
     margin-bottom: 0.3rem;
 }
 
-#modify {
+#edit {
     margin-bottom: 0.75rem;
 }
 
@@ -204,7 +204,7 @@ select {
 }
 
 .inputRow label {
-    font-size: 0.9rem;
+    font-size: 1.0rem;
 }
 
 /* Toolbar consistency */
@@ -222,10 +222,87 @@ select {
     margin-right: 0.5rem;
 }
 
-@media (max-width:768px) {
+@media (max-height:800px) {
+    html {
+        font-size: 14px;
+    }
+    #lowerLeftButtons button {
+        font-size: 1.2rem;
+    }
+
+    #lowerRightButtons button {
+        font-size: 1.2rem;
+    }
+
+    #upperRightButtons button {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-height:700px) {
+    html {
+        font-size: 12px;
+    }
+    #lowerLeftButtons button {
+        font-size: 1.5rem;
+    }
+
+    #lowerRightButtons button {
+        font-size: 1.5rem;
+    }
+
+    #upperRightButtons button {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-height:630px) {
+    html {
+        font-size: 10.5px;
+    }
+}
+
+@media (max-height:575px) {
     html {
         font-size: 10px;
     }
+}
+
+@media (max-height:540px) {
+    html {
+        font-size: 9px;
+    }
+    #focusSection {
+        margin-top: 0.3rem;
+    }
+    
+    #bodyType {
+        margin-bottom: 0rem;
+    }
+    
+    #edit {
+        margin-bottom: 0rem;
+    }
+    
+    #deleteBody {
+        margin-bottom: 0rem;
+    }
+    
+    #deleteTrail {
+        margin-bottom: 0rem;
+    }
+    #tools button {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-height:470px) {
+    html {
+        font-size: 8px;
+    }
+}
+
+@media (max-width:700px) {
     
     #container {
         flex-direction: column;

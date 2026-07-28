@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/jpg" href="" alt="chi squared image">
     <title>Gravity</title>
 </head>
 
@@ -19,7 +21,7 @@
             <div class="toolSection" id="focusSection">
                 <label class="sectionLabel">Focus</label>
 
-                <select id="focus" class="tooloptions">
+                <select id="focusMenu" class="tooloptions">
                     <option value="none">None</option>
                 </select>
 
@@ -33,52 +35,57 @@
             <div class="toolSection">
                 <label class="sectionLabel">Create</label>
 
-                <select id="bodyType" class="tooloptions">
+                <select id="bodyTypeMenu" class="tooloptions">
                     <option value="star">Star</option>
                     <option value="gas">Gas Body</option>
-                    <option value="rocky">Rocky Body</option>
+                    <option value="solid">Solid Body</option>
                 </select>
 
                 <!-- <input type="number" id="massInput" class="tooloptions inputField"> -->
                  <div class="inputRow">
-                    <label class="text">Mass</label>
-                    <input type="number" id="massInput" class="inputField" placeholder="10^20 kg">
+                    <label class="text">Mass:</label>
+                    <input type="number" id="massInput" class="inputField" placeholder="10^30 kg (0.5 suns)">
+                </div>
+
+                <div class="inputRow">
+                    <label class="text">Name:</label>
+                    <input type="string" id="nameInput" class="inputField" placeholder="name">
                 </div>
 
                 <button id="createBody" class="tooloptions">Create</button>
             </div>
 
-            <!-- Modify Section -->
+            <!-- Adjust Section -->
             <div class="toolSection">
                 <label class="sectionLabel">Modify</label>
 
-                <!-- YOUR EXISTING MODIFY DROPDOWN -->
-                <select id="modify" class="tooloptions">
+                <!-- YOUR EXISTING Adjust DROPDOWN -->
+                <select id="adjustMenu" class="tooloptions">
                     <option value="none">None</option>
                 </select>
 
                 <div class="inputRow">
-                    <label class="text">Xpos</label>
-                    <input type="number" id="xpos" class="inputField" placeholder="km">
+                    <label class="text">Xpos:</label>
+                    <input type="number" id="xpos" class="inputField" placeholder="10^6 km">
                 </div>
 
                 <div class="inputRow">
-                    <label class="text">Ypos</label>
-                    <input type="number" id="ypos" class="inputField"  placeholder="km">
+                    <label class="text">Ypos:</label>
+                    <input type="number" id="ypos" class="inputField"  placeholder="10^6 km">
                 </div>
 
                 <div class="inputRow">
-                    <label class="text">Xvel</label>
-                    <input type="number" id="xvel" class="inputField" placeholder="m/s">
+                    <label class="text">Xvel:</label>
+                    <input type="number" id="xvel" class="inputField" placeholder="km/s">
                 </div>
 
                 <div class="inputRow">
-                    <label class="text">Yvel</label>
-                    <input type="number" id="yvel" class="inputField" placeholder="m/s">
+                    <label class="text">Yvel:</label>
+                    <input type="number" id="yvel" class="inputField" placeholder="km/s">
                 </div>
 
                 <button id="deleteBody" class="tooloptions">Delete Body</button>
-                <button id="deleteTrail" class="tooloptions">Delete Trail</button>
+                <button id="deleteTrail" class="tooloptions">Clear Trail</button>
             </div>
 
             <p id="debug">text</p>
@@ -104,6 +111,8 @@
     <script defer src="physics.js"></script>
     <script defer src="view.js"></script>
     <script defer src="script.js"></script>
+
+    <script defer src="solar_system.js"></script>
 
 </body>
 </html>
