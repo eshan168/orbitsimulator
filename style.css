@@ -12,6 +12,7 @@ html, body {
 }
 
 #debug {
+    text-align: center;
     margin-top: 0rem;
     color: white;
 }
@@ -37,8 +38,10 @@ canvas {
 #lowerRightButtons {
     position: fixed;
     bottom: 0.5rem;
-    width: 60%;
+    right: 20%;
     text-align: right;
+
+    transition: transform 0.3s ease;
 }
 
 #lowerRightButtons button {
@@ -56,9 +59,8 @@ canvas {
 #lowerLeftButtons {
     position: fixed;
     bottom: 0.5rem;
-    width: 100%;
+    left: 0.5%;
     text-align: left;
-    margin-left: 1.0rem;
 }
 
 #lowerLeftButtons button {
@@ -68,10 +70,10 @@ canvas {
 #upperRightButtons {
     position: fixed;
     top: 0.5rem;
-    width: 60%;
+    right: 20%;
     text-align: right;
     font-size: 1rem;
-    margin-right: 1.0rem;
+    margin-right: 0.5rem;
 }
 
 #upperRightButtons button {
@@ -121,6 +123,9 @@ button:active {
 #tools {
     width: 20%;
     background-color: rgb(46, 47, 63);
+}
+
+#toolContent {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -141,6 +146,7 @@ select {
     color: #60666d;
     width: 50%;
     border-radius: 0.3rem;
+    overflow: scroll;
 }
 
 /* Section layout */
@@ -220,6 +226,20 @@ select {
 /* Checkbox spacing */
 .checkbox {
     margin-right: 0.5rem;
+}
+
+#toggleTools {
+    display: none;
+    position: fixed;
+    bottom: 0.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+
+    font-size: 1rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    line-height: 1;
 }
 
 @media (max-height:800px) {
@@ -312,24 +332,80 @@ select {
         width: 100%;
     }
 
-    #tools {
+    #canvas {
         width: 100%;
-        height: auto;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        padding: 1rem 0;
     }
 
     .tooloptions {
         margin: 1rem;
     }
 
-    #lowerRightButtons {
+    /* Tools become bottom sheet */
+    #tools {
+        position: fixed;
+        bottom: 0;
+        left: 0;
         width: 100%;
+        height: 30%;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        
+        z-index: 15;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding-bottom: 2rem;
+    }
+
+    #toolsContent {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    /* When open */
+    #tools.open {
+        transform: translateY(0%);
+    }
+
+    /* Show toggle button */
+    #toggleTools {
+        display: block;
+    }
+
+    #lowerLeftButtons {
+        top: 0.5rem;
+        left: 0.5%;
+        margin-left: 0.5rem;
+    }
+
+    #lowerRightButtons {
+        right: 0.5%;
+    }
+
+    #lowerRightButtons.raise {
+        transform: translateY(-34vh);
+    }
+
+    #lowerRightButtons :nth-child(4 of button){
+        margin-right: 0rem;
     }
 
     #upperRightButtons {
-        width: 99%;
+        right: 0.5%;
+    }
+}
+
+@media (max-width:350px) {
+    #lowerRightButtons.raise {
+        transform: translate(-50%, -34vh);
+    }
+
+    #lowerRightButtons {
+        position: fixed;
+        bottom: 0.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        width: 100%;
     }
 }

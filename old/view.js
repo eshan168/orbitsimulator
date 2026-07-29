@@ -1,10 +1,6 @@
-const distanceInputScale = 10**6;
-const speedInputScale = 10**3;
-let massInputScale = 10**30;
-
 class Rendering {
 
-    static renderingArea = 20000;
+    static renderingArea = 8000;
 
     constructor(display) {
         this.display = display
@@ -119,12 +115,10 @@ class Rendering {
         this.display.ctx.strokeStyle = "white";
         this.display.ctx.lineWidth = 2/zoom;
         this.display.ctx.beginPath();
-        this.display.ctx.arc(body.position[0],body.position[1],body.radius+Adjuster.clickDistance/zoom,0,Math.PI*2);
+        this.display.ctx.arc(body.position[0],body.position[1],body.radius+10/zoom,0,Math.PI*2);
 
         // Arrow for velocity
         let arrowEndPoint = this.viewControls.adjuster.getVelocityArrowPosition();
-        // let difference = [arrowEndPoint[0]-body.position[0],arrowEndPoint[1]-body.position[1]];
-        // let angle = Math.atan(difference[1]/difference[0]);
 
         this.display.ctx.fillStyle = "white";
         this.display.ctx.moveTo(body.position[0],body.position[1]);
@@ -153,7 +147,8 @@ class ViewControls  {
     static zoomOutFactor = 0.9;
 
     static maxZoom = 5000;
-    static minZoom = 0.02;
+    static maxZoom = 5000000000000000000;
+    static minZoom = 0.05;
 
     constructor(display) {
         this.display = display;
@@ -170,11 +165,23 @@ class ViewControls  {
 
         this.focusbody = null;
 
-        addEventListener("mousedown", (event) => this.mouseDown(event));
-        addEventListener("mouseup", (event) => this.mouseUp(event));
-        addEventListener("mousemove", (event) => this.mouseMove(event));
+        addEventListener("mousedown", (event) => this.pointerDown(event));
+        addEventListener("mouseup", (event) => this.pointerUp(event));
+        addEventListener("mousemove", (event) => this.pointerMove(event));
+
+        // event.clientX will have value with mouseclick but no value with touchscreen
+        addEventListener("touchstart", (event) => this.pointerDown(event.touches[0]));
+        addEventListener("touchend", (event) => this.pointerUp(event.touches[0]));
+        addEventListener("touchmove", (event) => this.pointerMove(event.touches[0]));
+
         addEventListener("wheel", (event) => this.wheel(event), {passive: false});
-        addEventListener("resize", (event) => this.resize(event));
+        addEventListener("resize", (event) => this.resetViewToDefault());
+
+        // Pinch zoom on touchscreen 
+        addEventListener("touchstart", (event) => this.pinchStart(event), { passive: false });
+        addEventListener("touchend", (event) => this.pinchEnd(event), { passive: false });
+        addEventListener("touchmove", (event) => this.pinchZoom(event), { passive: false });
+        this.pinchDistance = null;
 
         focusMenu.addEventListener("change", () => this.changefocus());
         this.changefocus();
@@ -186,12 +193,10 @@ class ViewControls  {
         this.resetView.addEventListener("click", () => this.resetViewToDefault());
 
         // Make display.canvas full size and center orbits
-        this.display.canvas.width = window.innerWidth*0.8;
-        this.display.canvas.height = window.innerHeight;
         this.resetViewToDefault();
     }
 
-    mouseDown(event) {
+    pointerDown(event) {
         if (!event.target.closest("canvas")) {
             return;
         }
@@ -202,11 +207,11 @@ class ViewControls  {
         this.isPressed = true;
     }
 
-    mouseUp(event) {
+    pointerUp(event) {
         this.isPressed = false;
     }
 
-    mouseMove(event) {
+    pointerMove(event) {
         if (!this.isPressed || this.adjuster.drag) {
             return;
         }
@@ -223,9 +228,52 @@ class ViewControls  {
         this.ystart = y;
     }
 
+    pinchStart(event) {
+        if (event.touches.length == 2) {
+            this.pinchDistance = this.touchesDistance(event.touches);
+        }
+    }
+
+    pinchZoom(event) {
+        if (event.touches.length == 2) {
+
+            event.preventDefault();
+            let newDistance = this.touchesDistance(event.touches);
+
+            if (this.pinchDistance != null) {
+                if (newDistance / this.pinchDistance < 0.9 || newDistance / this.pinchDistance > 1.11) {
+                    let zoomFactor = newDistance / this.pinchDistance < 1 ? 1 : -1;
+                    let x = (event.touches[0].clientX + event.touches[1].clientX)/2
+                    let y = (event.touches[0].clientY + event.touches[1].clientY)/2
+
+                    this.zoom(x,y,zoomFactor-1);
+                    this.pinchDistance = newDistance;
+                }
+            }
+        }
+    }
+
+    pinchEnd(event) {
+        this.pinchDistance = null;
+    }
+
+    touchesDistance(touches) {
+        let x = touches[0].clientX - touches[1].clientX;
+        let y = touches[0].clientY - touches[1].clientY;
+        return Math.sqrt(x**2 + y**2);
+      }
+
     wheel(event) {
+        if (!event.target.closest("canvas")) {
+            return;
+        }
+
         event.preventDefault();
-        let zoomFactor = event.deltaY < 0 ? ViewControls.zoomInFactor : ViewControls.zoomOutFactor;
+        this.zoom(event.clientX,event.clientY,event.deltaY);
+    }
+
+    zoom (x,y,dy) {
+        let zoomFactor = dy < 0 ? ViewControls.zoomInFactor : ViewControls.zoomOutFactor;
 
         // Check if the new zoom level is within the allowed range
         if (this.zoomScale*zoomFactor >= ViewControls.maxZoom || this.zoomScale*zoomFactor <= ViewControls.minZoom) {
@@ -238,18 +286,11 @@ class ViewControls  {
         this.zoomScale *= this.currentZoom;
         this.display.bodies.forEach((body) => this.updateText(body));
 
-        let xoffset = event.clientX-(this.display.canvas.width/2);
-        let yoffset = event.clientY-(this.display.canvas.height/2);
+        let xoffset = x-(this.display.canvas.width/2);
+        let yoffset = y-(this.display.canvas.height/2);
         let c = this.getCenter();
         
         this.mousefocus = [c[0]+xoffset/this.zoomScale*this.currentZoom,c[1]+yoffset/this.zoomScale*this.currentZoom];
-    }
-
-    resize(event) {
-        this.display.canvas.width = window.innerWidth*0.8;
-        this.display.canvas.height = window.innerHeight;
-
-        this.resetViewToDefault();
     }
 
     updatezoom() {
@@ -288,7 +329,22 @@ class ViewControls  {
         this.display.ctx.translate(this.focusbody.prevPostion[0]-this.focusbody.position[0], this.focusbody.prevPostion[1]-this.focusbody.position[1]);
     }
 
+    // If screen is smaller than 700px make the canvas full screen and use the dropdown toggles for tools
     resetViewToDefault() {
+        if (window.innerWidth <= 700) {
+            // Larger click zone for touchscreen
+            Adjuster.clickDistance = 20;
+
+            this.display.canvas.width = window.innerWidth;
+            this.display.canvas.height = window.innerHeight;
+        }
+        else {
+            Adjuster.clickDistance = 10;
+            this.display.canvas.width = window.innerWidth*0.8;
+            this.display.canvas.height = window.innerHeight;
+        }
+
+
         focusMenu.value = "None";
         this.focusbody = null;
 
@@ -303,256 +359,6 @@ class ViewControls  {
         let transform = this.display.ctx.getTransform();
         return [-(transform.e-this.display.canvas.width/2)/transform.a, 
                 -(transform.f-this.display.canvas.height/2)/transform.d];
-    }
-}
-
-const adjustMenu = document.getElementById("adjustMenu");
-
-const xpInput = document.getElementById("xpos");
-const ypInput = document.getElementById("ypos");
-const xvInput = document.getElementById("xvel");
-const yvInput = document.getElementById("yvel");
-
-const deleteBody = document.getElementById("deleteBody");
-const deleteTrail = document.getElementById("deleteTrail");
-
-class Adjuster {
-
-    static clickDistance = 10;
-
-    constructor(display,viewControls) {
-        this.display = display;
-        this.viewControls = viewControls;
-        this.targetBody = null;
-
-        this.drag = false;
-        this.dragType = "pos";
-        this.mouseDownCoords = [0,0];
-        this.xstart = 0;
-        this.ystart = 0;
-
-        this.velocityArrowScale = 1000000;
-        addEventListener("mouseup", (event) => this.mouseUp(event));
-        addEventListener("mousedown", (event) => this.mouseDown(event));
-        addEventListener("mousemove", (event) => this.mouseMove(event));
-        addEventListener("wheel", (event) => this.wheel(event));
-
-        addEventListener("keydown", () => this.changeTargetBodyStat(event));
-        adjustMenu.addEventListener("change", () => this.changeTargetBody(this.display.keysToBodies[adjustMenu.value]));
-
-        deleteBody.addEventListener("click", () => { if (this.targetBody) this.display.bodyControls.deleteBody(this.targetBody)});
-        deleteTrail.addEventListener("click", () => { if (this.targetBody) this.targetBody.trail.clearTrail()});
-    }
-
-    mouseDown(event) {
-        let rect = this.display.canvas.getBoundingClientRect()
-        this.mouseDownCoords = [event.clientX-rect.left,event.clientY-rect.top];
-
-        if (!this.targetBody) {
-            return;
-        }
-
-        this.xstart = event.clientX - rect.left;
-        this.ystart = event.clientY - rect.top;
-
-        // check if the click is in the velocity or body interaction zone
-        let vel = this.getVelocityArrowPosition();;
-        let pos = this.targetBody.position;
-        let velDistance = this.clickDistance(event,vel);
-        let posDistance = this.clickDistance(event,pos);
-        let minDistance = Adjuster.clickDistance/this.viewControls.zoomScale;
-        
-        // Pick Whichever distance is closest to their interaction zones, if neither is use the body radius or if not that then drag = false
-        if (posDistance < this.targetBody.radius && posDistance > minDistance && velDistance > minDistance) {
-            this.drag = true;
-            this.dragType = "pos";
-        }
-        else if (posDistance < velDistance) {
-            if (posDistance < minDistance) {
-                this.drag = true;
-                this.dragType = "pos";
-            }
-        }
-        else if (velDistance < posDistance) {
-            if (velDistance < minDistance) {
-                this.drag = true;
-                this.dragType = "vel";
-            }
-        }
-        else {
-            this.drag = false;
-        }
-    }
-
-    mouseUp(event) {
-        this.drag = false;
-
-        let rect = this.display.canvas.getBoundingClientRect()
-        let mouseUpCoords = [event.clientX-rect.left,event.clientY-rect.top];
-
-        // if the click was a button or other object other than the canvas or the click was to translate, don't change the targetBody
-        let clickedCanvas = (event.target.closest("canvas"));
-        let didNotTranslate =  (this.mouseDownCoords[0] == mouseUpCoords[0] && this.mouseDownCoords[1] == mouseUpCoords[1]);
-        if (clickedCanvas && didNotTranslate) {
-            this.changeTargetBody(this.checkForBody(event));
-        }
-    }
-
-    mouseMove(event) {
-        if (!this.drag || !this.targetBody) {
-            return;
-        }
-
-        let rect = this.display.canvas.getBoundingClientRect()
-        let x = event.clientX - rect.left;
-        let y = event.clientY - rect.top;
-
-        if (this.dragType == "pos") {
-            let translatex = (x-this.xstart)/this.viewControls.zoomScale;
-            let translatey = (y-this.ystart)/this.viewControls.zoomScale;
-
-            this.targetBody.position[0] += translatex;
-            this.targetBody.position[1] += translatey;
-            this.targetBody.trail.clearTrail();
-        }
-        if (this.dragType == "vel") {
-            let relativePos = this.clickCoords(event);
-            let bodyPos = this.targetBody.position;
-
-            this.targetBody.velocity[0] = (relativePos[0]-bodyPos[0])/this.velocityArrowScale*this.viewControls.zoomScale;
-            this.targetBody.velocity[1] = (relativePos[1]-bodyPos[1])/this.velocityArrowScale*this.viewControls.zoomScale;
-        }
-
-        this.xstart = x;
-        this.ystart = y;
-    }
-
-    wheel(event) {
-        this.velocityArrowScale = Math.max(500000, Math.min(5000000, 1000000*Math.sqrt(this.viewControls.zoomScale)));
-    }
-
-    changeTargetBody(body) {
-        this.targetBody = body;
-        if (body){
-            adjustMenu.value = body.name;
-        }
-        else {
-            xpInput.value = "";
-            ypInput.value = "";
-            xvInput.value = "";
-            yvInput.value = "";
-            adjustMenu.value = "None";
-        }
-    }
-
-    updateAdjusterText() {
-        if (!this.targetBody) {
-            return;
-        }
-
-        // console.log(this.targetBody.position+" "+this.targetBody.velocity);
-        if (document.activeElement != xpInput) xpInput.value = round(this.targetBody.position[0], 4);
-        if (document.activeElement != ypInput) ypInput.value = round(this.targetBody.position[1], 4);
-        if (document.activeElement != xvInput) xvInput.value = round(this.targetBody.velocity[0]*scale / speedInputScale, 4);
-        if (document.activeElement != yvInput) yvInput.value = round(this.targetBody.velocity[1]*scale / speedInputScale, 4);
-    }
-
-    changeTargetBodyStat(event) {
-        let active = document.activeElement;
-        if (event.key != "Enter" || !this.targetBody) {
-            return;
-        }
-
-        if (active == xpInput) {
-            this.targetBody.position[0] = Number(xpInput.value);
-            this.targetBody.trail.clearTrail();
-        }
-        else if (active == ypInput) {
-            this.targetBody.position[1] = Number(ypInput.value);
-            this.targetBody.trail.clearTrail();
-        } 
-        else if (active == xvInput) {
-            this.targetBody.velocity[0] = Number(xvInput.value/scale * speedInputScale);
-        }  
-        else if (active == yvInput) {
-            this.targetBody.velocity[1] = Number(yvInput.value/scale * speedInputScale);
-        }
-
-        document.activeElement.disabled = true;
-        xpInput.disabled = false;
-        ypInput.disabled = false;
-        xvInput.disabled = false;
-        yvInput.disabled = false;
-    }  
-
-    // Get the click position using ctx transformation and return distance
-    clickDistance(event,coords) {
-        let rect = this.display.canvas.getBoundingClientRect()
-        let transform = this.display.ctx.getTransform();
-        let x = (event.clientX - rect.left - transform.e)/transform.a;
-        let y = (event.clientY - rect.top - transform.f)/transform.d;
-        return Math.sqrt((coords[0]-x)**2 + (coords[1]-y)**2);
-    }
-
-    // Get the click coordinates using ctx transformation and return distance
-    clickCoords(event) {
-        let rect = this.display.canvas.getBoundingClientRect()
-        let transform = this.display.ctx.getTransform();
-        let x = (event.clientX - rect.left - transform.e)/transform.a;
-        let y = (event.clientY - rect.top - transform.f)/transform.d;
-        return [x,y];
-    }
-
-    checkForBody(event) {
-        // check if the click is in the velocity or body interaction zone
-        if (this.targetBody) {
-            let vel = this.getVelocityArrowPosition();;
-            let pos = this.targetBody.position;
-            let velDistance = this.clickDistance(event,vel);
-            let posDistance = this.clickDistance(event,pos);
-
-            if (velDistance < Adjuster.clickDistance/this.viewControls.zoomScale && velDistance < posDistance) {
-                return this.targetBody;
-            }
-            else if (posDistance < Adjuster.clickDistance/this.viewControls.zoomScale && posDistance < velDistance) {
-                return this.targetBody;
-            }
-        }
-
-        let minDistance = 1e99;
-        let minBody = null;
-
-        for (let body of this.display.bodies) {
-            let distance = this.clickDistance(event,body.position);
-            if (distance < body.radius) {
-                minBody = body;
-                break;
-            }
-            if (distance < Adjuster.clickDistance/this.viewControls.zoomScale) {
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    minBody = body;
-                }
-            }
-        }
-
-        if (minBody) {
-            return minBody
-        }
-
-        return null;
-    }
-
-    getVelocityArrowPosition() {
-        if (!this.targetBody) {
-            return;
-        }
-
-        let pos = this.targetBody.position;
-        let x = this.targetBody.velocity[0]*this.velocityArrowScale/this.viewControls.zoomScale;
-        let y = this.targetBody.velocity[1]*this.velocityArrowScale/this.viewControls.zoomScale;
-
-        return [pos[0]+x,pos[1]+y];
     }
 }
 
@@ -617,12 +423,4 @@ class TimeControls {
         this.paused = true;
         this.pauseButton.innerText = "▶︎";
     }
-}
-
-function log(text) {
-    debug.innerText = text;
-}
-
-function round(num,precision) {
-    return Math.round(num*10**precision)/10**precision;
 }

@@ -1,12 +1,3 @@
-const gconstant = 6.674 * 10**-11
-const scale = 1000000000;
-
-const maxspeed = 600000;
-const minspeed = 10;
-
-const linewidth = 3;
-const minfont = 0.01;
-
 class Body {
 
     // {radius=10, mass=1, x=0,y=0,velocity=[0,0],color="white"}
@@ -211,20 +202,8 @@ class VelocityVerletSim {
         }
     }
 
-    realDistance(body1,body2) {
-        let b1 = body1.position;
-        let b2 = body2.position;
-        return Math.sqrt((b1[0]-b2[0])**2 + (b1[1]-b2[1])**2) * scale;
-    }
-
-    scaledDistance(body1,body2) {
-        let b1 = body1.position;
-        let b2 = body2.position;
-        return Math.sqrt((b1[0]-b2[0])**2 + (b1[1]-b2[1])**2);
-    }
-
     gravity(body1,body2) {
-        return (body1.mass*body2.mass)/(this.realDistance(body1,body2)**2) * gconstant;
+        return (body1.mass*body2.mass)/(VelocityVerletSim.realDistance(body1,body2)**2) * gconstant;
     }
 
     acceleration(body1,body2) {
@@ -245,7 +224,7 @@ class VelocityVerletSim {
     // Updates the acceleration for only the body1
     calculateAcceleration1(body1,body2) {
         let scaledForce = this.gravity(body1,body2) / scale 
-        let distance = this.scaledDistance(body1,body2);
+        let distance = VelocityVerletSim.scaledDistance(body1,body2);
         let normalizedVelocity = [(body2.position[0]-body1.position[0])/distance, (body2.position[1]-body1.position[1])/distance];
 
         let b1accel = [normalizedVelocity[0] * scaledForce/body1.mass, normalizedVelocity[1] * scaledForce/body1.mass];
@@ -256,7 +235,7 @@ class VelocityVerletSim {
     // Updates the acceleration for both bodies
     calculateAcceleration2(body1,body2) {
         let scaledForce = this.gravity(body1,body2) / scale 
-        let distance = this.scaledDistance(body1,body2);
+        let distance = VelocityVerletSim.scaledDistance(body1,body2);
         let normalizedVelocity = [(body2.position[0]-body1.position[0])/distance, (body2.position[1]-body1.position[1])/distance];
 
         let b1accel = [normalizedVelocity[0] * scaledForce/body1.mass, normalizedVelocity[1] * scaledForce/body1.mass];
@@ -266,6 +245,18 @@ class VelocityVerletSim {
         body1.newAcceleration[1] += b1accel[1];
         body2.newAcceleration[0] += b2accel[0];
         body2.newAcceleration[1] += b2accel[1];
+    }
+
+    static realDistance(body1,body2) {
+        let b1 = body1.position;
+        let b2 = body2.position;
+        return Math.sqrt((b1[0]-b2[0])**2 + (b1[1]-b2[1])**2) * scale;
+    }
+
+    static scaledDistance(body1,body2) {
+        let b1 = body1.position;
+        let b2 = body2.position;
+        return Math.sqrt((b1[0]-b2[0])**2 + (b1[1]-b2[1])**2);
     }
 }
 

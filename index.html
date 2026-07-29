@@ -16,81 +16,85 @@
         </div>
 
         <div id="tools">
+            <div id="toolsContent">
 
-            <!-- Focus Section -->
-            <div class="toolSection" id="focusSection">
-                <label class="sectionLabel">Focus</label>
+                <!-- Focus Section -->
+                <div class="toolSection" id="focusSection">
+                    <label class="sectionLabel">Focus</label>
 
-                <select id="focusMenu" class="tooloptions">
-                    <option value="none">None</option>
-                </select>
+                    <select id="focusMenu" class="tooloptions">
+                        <option value="none">None</option>
+                    </select>
 
-                <div class="tooloptions">
-                    <input type="checkbox" class="checkbox" id="shownames" value="shownames" checked>
-                    <label for="shownames" class="text">Show Names</label>
+                    <div class="tooloptions">
+                        <input type="checkbox" class="checkbox" id="shownames" value="shownames" checked>
+                        <label for="shownames" class="text">Show Names</label>
+                    </div>
                 </div>
+
+                <!-- Create Body Section -->
+                <div class="toolSection">
+                    <label class="sectionLabel">Create</label>
+
+                    <select id="bodyTypeMenu" class="tooloptions">
+                        <option value="star">Star</option>
+                        <option value="gas">Gas Body</option>
+                        <option value="solid">Solid Body</option>
+                    </select>
+
+                    <!-- <input type="number" id="massInput" class="tooloptions inputField"> -->
+                    <div class="inputRow">
+                        <label class="text">Mass:</label>
+                        <input type="number" id="massInput" class="inputField" placeholder="10^30 kg (0.5 suns)">
+                    </div>
+
+                    <div class="inputRow">
+                        <label class="text">Name:</label>
+                        <input type="string" id="nameInput" class="inputField" placeholder="name">
+                    </div>
+
+                    <button id="createBody" class="tooloptions">Create</button>
+                </div>
+
+                <!-- Adjust Section -->
+                <div class="toolSection">
+                    <label class="sectionLabel">Modify</label>
+
+                    <!-- YOUR EXISTING Adjust DROPDOWN -->
+                    <select id="adjustMenu" class="tooloptions">
+                        <option value="none">None</option>
+                    </select>
+
+                    <div class="inputRow">
+                        <label class="text">Xpos:</label>
+                        <input type="number" id="xpos" class="inputField" placeholder="10^6 km">
+                    </div>
+
+                    <div class="inputRow">
+                        <label class="text">Ypos:</label>
+                        <input type="number" id="ypos" class="inputField"  placeholder="10^6 km">
+                    </div>
+
+                    <div class="inputRow">
+                        <label class="text">Xvel:</label>
+                        <input type="number" id="xvel" class="inputField" placeholder="km/s">
+                    </div>
+
+                    <div class="inputRow">
+                        <label class="text">Yvel:</label>
+                        <input type="number" id="yvel" class="inputField" placeholder="km/s">
+                    </div>
+
+                    <button id="deleteBody" class="tooloptions">Delete Body</button>
+                    <button id="deleteTrail" class="tooloptions">Clear Trail</button>
+                </div>
+
+                <!-- <p id="debug">text</p> -->
+
             </div>
-
-            <!-- Create Body Section -->
-            <div class="toolSection">
-                <label class="sectionLabel">Create</label>
-
-                <select id="bodyTypeMenu" class="tooloptions">
-                    <option value="star">Star</option>
-                    <option value="gas">Gas Body</option>
-                    <option value="solid">Solid Body</option>
-                </select>
-
-                <!-- <input type="number" id="massInput" class="tooloptions inputField"> -->
-                 <div class="inputRow">
-                    <label class="text">Mass:</label>
-                    <input type="number" id="massInput" class="inputField" placeholder="10^30 kg (0.5 suns)">
-                </div>
-
-                <div class="inputRow">
-                    <label class="text">Name:</label>
-                    <input type="string" id="nameInput" class="inputField" placeholder="name">
-                </div>
-
-                <button id="createBody" class="tooloptions">Create</button>
-            </div>
-
-            <!-- Adjust Section -->
-            <div class="toolSection">
-                <label class="sectionLabel">Modify</label>
-
-                <!-- YOUR EXISTING Adjust DROPDOWN -->
-                <select id="adjustMenu" class="tooloptions">
-                    <option value="none">None</option>
-                </select>
-
-                <div class="inputRow">
-                    <label class="text">Xpos:</label>
-                    <input type="number" id="xpos" class="inputField" placeholder="10^6 km">
-                </div>
-
-                <div class="inputRow">
-                    <label class="text">Ypos:</label>
-                    <input type="number" id="ypos" class="inputField"  placeholder="10^6 km">
-                </div>
-
-                <div class="inputRow">
-                    <label class="text">Xvel:</label>
-                    <input type="number" id="xvel" class="inputField" placeholder="km/s">
-                </div>
-
-                <div class="inputRow">
-                    <label class="text">Yvel:</label>
-                    <input type="number" id="yvel" class="inputField" placeholder="km/s">
-                </div>
-
-                <button id="deleteBody" class="tooloptions">Delete Body</button>
-                <button id="deleteTrail" class="tooloptions">Clear Trail</button>
-            </div>
-
-            <p id="debug">text</p>
-
         </div>
+
+        <button id="toggleTools">▲</button>
 
         <div id="lowerLeftButtons">
             <button id="resetView">Reset View</button>
@@ -108,11 +112,17 @@
         </div>
     </div>
 
-    <script defer src="physics.js"></script>
-    <script defer src="view.js"></script>
-    <script defer src="script.js"></script>
+    <script defer src="elements/body.js"></script>
+    <script defer src="elements/trail.js"></script>
+    <script defer src="elements/solar_system.js"></script>
 
-    <script defer src="solar_system.js"></script>
+    <script defer src="view/rendering.js"></script>
+    <script defer src="view/viewcontrols.js"></script>
+    <script defer src="view/adjuster.js"></script>
+    <script defer src="view/timecontrols.js"></script>
+
+    <script defer src="simulation.js"></script>
+    <script defer src="script.js"></script>
 
 </body>
 </html>
