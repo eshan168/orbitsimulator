@@ -483,7 +483,7 @@ select {
     #toolsContent {
         flex: 1;
         overflow-y: auto;
-        width: 50%;
+        width: 75%;
         margin-right: auto;
         margin-left: auto;
     }
@@ -505,12 +505,16 @@ select {
     }
 
     #lowerRightButtons {
-        right: 0.5%;
+        position: fixed;
         bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        width: 100%;
     }
 
     #lowerRightButtons.raise {
-        transform: translateY(-35vh);
+        transform: translate(-50%, -35vh);
     }
 
     #lowerRightButtons :nth-child(4 of button){
@@ -519,24 +523,5 @@ select {
 
     #upperRightButtons {
         right: 0.5%;
-    }
-}
-
-@media (max-width:400px) {
-    #toolsContent {
-        width: 100%;
-    }
-
-    #lowerRightButtons.raise {
-        transform: translate(-50%, -35vh);
-    }
-
-    #lowerRightButtons {
-        position: fixed;
-        bottom: 1rem;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-        width: 100%;
     }
 }

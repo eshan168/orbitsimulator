@@ -19,7 +19,6 @@ class Display {
 
     animate() {
         this.rendering.clearCanvas();
-        this.rendering.viewControls.updatezoom();
 
         if (!this.timeControls.paused) {
             for (let i = 0; i < VelocityVerletSim.extraSteps; i++){

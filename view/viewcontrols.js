@@ -15,7 +15,6 @@ class ViewControls  {
     constructor(display) {
         this.display = display;
 
-        this.currentZoom = 1;
         this.zoomScale = 1;
 
         this.center = [this.display.canvas.width/2,this.display.canvas.height/2];
@@ -91,7 +90,7 @@ class ViewControls  {
     }
 
     pinchStart(event) {
-        if (event.touches.length == 2) {
+        if (event.touches.length == 2 && event.touches[0].target.closest("canvas") && event.touches[1].target.closest("canvas")) {
             this.pinchDistance = this.touchesDistance(event.touches);
         }
     }
@@ -103,12 +102,12 @@ class ViewControls  {
             let newDistance = this.touchesDistance(event.touches);
 
             if (this.pinchDistance != null) {
-                if (newDistance / this.pinchDistance < 0.9 || newDistance / this.pinchDistance > 1.11) {
-                    let zoomFactor = newDistance / this.pinchDistance < 1 ? 1 : -1;
+                if (newDistance / this.pinchDistance < 0.95 || newDistance / this.pinchDistance > 1.0526) {
+                    let zoomFactor = newDistance / this.pinchDistance;
                     let x = (event.touches[0].clientX + event.touches[1].clientX)/2
                     let y = (event.touches[0].clientY + event.touches[1].clientY)/2
 
-                    this.zoom(x,y,zoomFactor-1);
+                    this.zoom(x,y,zoomFactor < 1 ? 1 : -1);
                     this.pinchDistance = newDistance;
                 }
             }
@@ -139,32 +138,26 @@ class ViewControls  {
 
         // Check if the new zoom level is within the allowed range
         if (this.zoomScale*zoomFactor >= ViewControls.maxZoom || this.zoomScale*zoomFactor <= ViewControls.minZoom) {
-            this.currentZoom = 1;
             return;
-        } else {
-            this.currentZoom = zoomFactor;
         }
 
-        this.zoomScale *= this.currentZoom;
+        console.log(dy);
+
+        this.zoomScale *= zoomFactor;
         this.display.bodies.forEach((body) => this.updateText(body));
 
         let xoffset = x-(this.display.canvas.width/2);
         let yoffset = y-(this.display.canvas.height/2);
         let c = this.getCenter();
         
-        this.mousefocus = [c[0]+xoffset/this.zoomScale*this.currentZoom,c[1]+yoffset/this.zoomScale*this.currentZoom];
-    }
+        this.mousefocus = [c[0]+xoffset/this.zoomScale*zoomFactor,c[1]+yoffset/this.zoomScale*zoomFactor];
 
-    updatezoom() {
-        if (this.currentZoom != 1){
-            let widthtranslation = this.currentZoom > 1 ? -this.mousefocus[0] * 1/11: this.mousefocus[0] * 1/9;
-            let heighttranslation = this.currentZoom > 1 ? -this.mousefocus[1] * 1/11: this.mousefocus[1] * 1/9;
+        let widthtranslation = zoomFactor > 1 ? -this.mousefocus[0] * 1/11: this.mousefocus[0] * 1/9;
+        let heighttranslation = zoomFactor > 1 ? -this.mousefocus[1] * 1/11: this.mousefocus[1] * 1/9;
 
-            this.display.ctx.scale(this.currentZoom,this.currentZoom);
-            this.display.ctx.translate(widthtranslation,heighttranslation);
-            this.currentZoom = 1;
-        }
-        // log(this.zoomScale);
+        this.display.ctx.scale(zoomFactor,zoomFactor);
+        this.display.ctx.translate(widthtranslation,heighttranslation);
+        zoomFactor = 1;
     }
 
     updateText(body) {
@@ -195,7 +188,7 @@ class ViewControls  {
     resetViewToDefault() {
         if (window.innerWidth <= 700) {
             // Larger click zone for touchscreen
-            Adjuster.clickDistance = 20;
+            Adjuster.clickDistance = 50;
 
             this.display.canvas.width = window.innerWidth;
             this.display.canvas.height = window.innerHeight;
