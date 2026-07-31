@@ -25,14 +25,14 @@ html, body {
 #canvascontainer {
     display: block;
     width: 80%;
-    height: 100vh; /* fixes stretch */
+    height: 100vh;
 }
 
 canvas {
-    background-color: rgb(0, 0, 15);
+    background-color: rgb(0, 0, 24);
     height: 100%;
     width: 100%;
-    object-fit: contain; /* prevents distortion */
+    object-fit: contain;
 }
 
 #lowerRightButtons {
@@ -80,7 +80,6 @@ canvas {
     font-size: 1rem;
 }
 
-/* CSS */
 button {
     align-items: center;
     background-color: initial;
@@ -121,6 +120,7 @@ button:active {
 }
 
 #tools {
+    padding-top: 1rem;
     width: 20%;
     background-color: rgb(46, 47, 63);
 }
@@ -133,6 +133,9 @@ button:active {
 }
 
 .tooloptions {
+    display: flex;
+    align-items: center; /* vertical alignment */
+    gap: 0.5rem;
     margin: 1rem 2rem;
 }
 
@@ -158,12 +161,132 @@ select {
     margin-bottom: 1.5rem;
 }
 
+#infoBtn {
+    display: block;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1rem;
+}
+
+#infoOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 50;
+}
+
+#infoPanel {
+    width: 80%;
+    max-width: 400px;
+    height: 60%;
+
+    background: #2e2f3f;
+    border-radius: 10px;
+    padding: 1rem;
+
+    display: flex;
+    flex-direction: column;
+
+    position: relative;
+
+    color: white;
+}
+
+#infoContent {
+    overflow-y: auto;
+    margin-top: 1rem;
+    padding-right: 0.5rem;
+}
+
+#closeInfo {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
 #focusSection {
     margin-top: 0.5rem;
 }
 
 #focus {
     margin-bottom: 0rem;
+}
+
+#shownamescontainer {
+    font-size: 1.25rem;
+}
+
+/* Hide default checkbox */
+.checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 1.125rem;
+    height: 1.125rem;
+
+    border: 0.0625rem solid #555;
+    border-radius: 0.25rem;
+    background: #3a3b4f;
+
+    cursor: pointer;
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.2s ease;
+}
+
+/* Checked state */
+.checkbox:checked {
+    background: #6c8cff;
+    border-color: #6c8cff;
+}
+
+.checkbox::after {
+    content: "✓";
+    color: white;
+    font-size: 12px;
+
+    transform: scale(0);
+    transition: transform 0.15s ease;
+}
+
+/* Checkmark */
+.checkbox:checked::after {
+    content: "";
+    position: absolute;
+    left: 0.3125rem;
+    top: 0.125rem;
+
+    width: 0.25rem;
+    height: 0.5rem;
+
+    border: solid white;
+    border-width: 0 0.125rem 0.125rem 0;
+    transform: rotate(45deg);
+}
+
+/* Optional hover */
+.checkbox:hover {
+    background: #4a4b5f;
 }
 
 #bodyType {
@@ -360,6 +483,9 @@ select {
     #toolsContent {
         flex: 1;
         overflow-y: auto;
+        width: 50%;
+        margin-right: auto;
+        margin-left: auto;
     }
 
     /* When open */
@@ -380,10 +506,11 @@ select {
 
     #lowerRightButtons {
         right: 0.5%;
+        bottom: 1rem;
     }
 
     #lowerRightButtons.raise {
-        transform: translateY(-34vh);
+        transform: translateY(-35vh);
     }
 
     #lowerRightButtons :nth-child(4 of button){
@@ -396,13 +523,17 @@ select {
 }
 
 @media (max-width:350px) {
+    #toolsContent {
+        width: 100%;
+    }
+
     #lowerRightButtons.raise {
-        transform: translate(-50%, -34vh);
+        transform: translate(-50%, -35vh);
     }
 
     #lowerRightButtons {
         position: fixed;
-        bottom: 0.5rem;
+        bottom: 1rem;
         left: 50%;
         transform: translateX(-50%);
         text-align: center;

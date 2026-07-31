@@ -1,12 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
+    <script type="application/ld+json">
+        {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Gravity Simulator",
+        "description": "Interactive gravity simulator for exploring orbital mechanics and real-time physics using HTML5 Canvas.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "url": "https://your-site-url.com"
+        }
+    </script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+    <!-- SEO  -->
+    <title>Gravity Simulator - Interactive Physics Sandbox for Orbital Mechanics</title>
+
+    <meta name="description" content="Interactive gravity simulator built with HTML5 Canvas. Create celestial bodies, explore orbital mechanics, simulate gravity, and experiment with real-time physics in a mobile-friendly sandbox.">
+
+    <meta name="keywords" content="gravity simulator, physics simulation, orbital mechanics, space simulation, gravity sandbox, HTML5 canvas physics, real-time physics, orbit simulator">
+
+    <meta name="Eshan Reddy" content="Gravity Simulator">
+
+    <!-- Social -->
+    <meta property="og:title" content="Gravity Simulator - Interactive Physics Sandbox">
+    <meta property="og:description" content="Explore gravity, orbits, and motion in this real-time physics simulator. Create bodies and experiment with orbital mechanics.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://eshan168.github.io/orbitsimulator/orbit_image.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="https://eshan168.github.io/orbitsimulator/orbit_image.png">
+    <meta name="twitter:title" content="Gravity Simulator - Interactive Physics Sandbox">
+    <meta name="twitter:description" content="Real-time gravity simulation with interactive controls and orbital mechanics.">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://eshan168.github.io/orbitsimulator/">
+
+    <!--  Styles -->
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/jpg" href="" alt="chi squared image">
-    <title>Gravity</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="orbit_image.png">
 </head>
 
 <body>
@@ -18,6 +57,8 @@
         <div id="tools">
             <div id="toolsContent">
 
+                <button id="infoBtn">About</button>
+
                 <!-- Focus Section -->
                 <div class="toolSection" id="focusSection">
                     <label class="sectionLabel">Focus</label>
@@ -26,7 +67,7 @@
                         <option value="none">None</option>
                     </select>
 
-                    <div class="tooloptions">
+                    <div class="tooloptions" id="shownamescontainer">
                         <input type="checkbox" class="checkbox" id="shownames" value="shownames" checked>
                         <label for="shownames" class="text">Show Names</label>
                     </div>
@@ -109,6 +150,73 @@
 
         <div id="upperRightButtons">
             <button id="clearAll">Clear All</button>
+        </div>
+    </div>
+
+    <div id="infoOverlay">
+        <div id="infoPanel">
+            <button id="closeInfo">&#10060</button>
+            <main id="infoContent">
+                <h1>Gravity Simulator</h1>
+
+                <h2>About This Gravity Simulator</h2>
+                <p>
+                This mobile friendly 2D interactive gravity simulator is a real-time physics sandbox that lets you explore orbital mechanics, gravitational interactions, and motion in space. You can create celestial bodies, adjust their position and velocity, and observe how they influence each other through gravity.
+                </p>
+
+                <p>
+                Built using HTML5 Canvas and JavaScript, this simulation models realistic gravitational behavior, allowing users to experiment with orbits, collisions, and multi-body systems. Whether you're learning physics, testing orbital setups, or just experimenting, this tool provides a hands-on way to visualize complex motion.
+                </p>
+
+                <p>
+                Key features include dynamic zooming, body focusing, velocity visualization, and full control over object properties. The simulator is designed to work on both desktop and mobile devices, making it accessible for learning and experimentation anywhere.
+                </p>
+
+                <p>
+                This gravity sandbox is ideal for students, educators, and anyone interested in space physics, orbital mechanics, or interactive simulations.
+                </p>
+                
+                <h2>How to Use the Gravity Simulator</h2>
+
+                <h3>Creating Bodies</h3>
+                <p>
+                Use the "Create Body" tools to add new objects to the simulation. Select a body type, then click on the canvas to place it. Each body will interact gravitationally with others in real time.
+                </p>
+
+                <h3>Adjusting Position and Velocity</h3>
+                <p>
+                Click on a body to select it. You can drag it to change its position or adjust its velocity by dragging the velocity arrow. Fine-tune values using the input fields for precise control.
+                </p>
+
+                <h3>Camera Controls</h3>
+                <p>
+                Use your mouse or touch gestures to pan and zoom around the simulation. You can also select a body from the focus menu to lock the camera onto it.
+                </p>
+
+                <h3>Editing and Deleting</h3>
+                <p>
+                Use the modify tools to update body properties or remove objects from the simulation. You can also clear trails to reset visual paths.
+                </p>
+
+                <h3>Mobile Controls</h3>
+                <p>
+                On smaller screens, use the toggle arrow to open the tools panel. The interface is optimized for touch, including drag interactions and pinch-style navigation.
+                </p>
+
+                <h3>Tips for Exploration</h3>
+                <ul>
+                <li>Try giving a body sideways velocity to create an orbit</li>
+                <li>Use different masses to see how gravity changes motion</li>
+                <li>Create multiple bodies to simulate complex systems</li>
+                <li>Zoom out to observe large-scale interactions</li>
+                </ul>
+
+                <p>
+                Experiment freely and discover how gravity shapes motion in this interactive physics simulation.
+                </p>
+
+                <p></p>
+            </div>
         </div>
     </div>
 

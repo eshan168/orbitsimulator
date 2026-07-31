@@ -152,7 +152,7 @@ function round(num,precision) {
     return Math.round(num*10**precision)/10**precision;
 }
 
-// Move tools up so accessible and lowerRight buttons with it 
+// Move tools up so accessible when sreen width is small and lowerRight buttons with it 
 const toggleBtn = document.getElementById("toggleTools");
 const tools = document.getElementById("tools");
 const lowerRight = document.getElementById("lowerRightButtons");
@@ -170,5 +170,25 @@ toggleBtn.addEventListener("click", () => {
         tools.classList.remove("open");
         lowerRight.classList.remove("raise");
         toggleBtn.textContent = "▲";
+    }
+});
+
+// Button to show websites information and instructions
+const infoBtn = document.getElementById("infoBtn");
+const infoOverlay = document.getElementById("infoOverlay");
+const closeInfo = document.getElementById("closeInfo");
+
+infoBtn.addEventListener("click", () => {
+    infoOverlay.style.display = "flex";
+});
+
+closeInfo.addEventListener("click", () => {
+    infoOverlay.style.display = "none";
+});
+
+/* Optional: click outside panel to close */
+infoOverlay.addEventListener("click", (e) => {
+    if (e.target === infoOverlay) {
+        infoOverlay.style.display = "none";
     }
 });

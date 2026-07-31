@@ -10,7 +10,6 @@ class ViewControls  {
     static zoomOutFactor = 0.9;
 
     static maxZoom = 5000;
-    static maxZoom = 5000000000000000000;
     static minZoom = 0.05;
 
     constructor(display) {
