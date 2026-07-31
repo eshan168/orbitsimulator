@@ -43,6 +43,7 @@ class ViewControls  {
         addEventListener("touchend", (event) => this.pinchEnd(event), { passive: false });
         addEventListener("touchmove", (event) => this.pinchZoom(event), { passive: false });
         this.pinchDistance = null;
+        this.pinchMiddle = [];
 
         focusMenu.addEventListener("change", () => this.changefocus());
         this.changefocus();
@@ -92,6 +93,10 @@ class ViewControls  {
     pinchStart(event) {
         if (event.touches.length == 2 && event.touches[0].target.closest("canvas") && event.touches[1].target.closest("canvas")) {
             this.pinchDistance = this.touchesDistance(event.touches);
+
+            let x = (event.touches[0].clientX + event.touches[1].clientX)/2
+            let y = (event.touches[0].clientY + event.touches[1].clientY)/2
+            this.pinchMiddle = [x,y];
         }
     }
 
@@ -104,10 +109,9 @@ class ViewControls  {
             if (this.pinchDistance != null) {
                 if (newDistance / this.pinchDistance < 0.95 || newDistance / this.pinchDistance > 1.0526) {
                     let zoomFactor = newDistance / this.pinchDistance;
-                    let x = (event.touches[0].clientX + event.touches[1].clientX)/2
-                    let y = (event.touches[0].clientY + event.touches[1].clientY)/2
+                    
 
-                    this.zoom(x,y,zoomFactor < 1 ? 1 : -1);
+                    this.zoom(this.pinchMiddle[0],this.pinchMiddle[1],zoomFactor < 1 ? 1 : -1);
                     this.pinchDistance = newDistance;
                 }
             }

@@ -16,7 +16,7 @@ class TimeControls {
         this.reverse.addEventListener("click", () => this.reverseTime());
         this.pauseButton.addEventListener("click", () => this.togglePause());
 
-        this.paused = false;
+        this.paused = true;
     }
 
     reverseTime() {
@@ -61,5 +61,10 @@ class TimeControls {
     pause() {
         this.paused = true;
         this.pauseButton.innerText = "▶︎";
+    }
+
+    unPause() {
+        this.paused = false;
+        this.pauseButton.innerText = "⏸︎";
     }
 }

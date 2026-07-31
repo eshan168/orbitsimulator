@@ -1,6 +1,11 @@
 const linewidth = 3;
 const minfont = 0.01;
 
+// Button to show websites information and instructions
+const infoBtn = document.getElementById("infoBtn");
+const infoOverlay = document.getElementById("infoOverlay");
+const closeInfo = document.getElementById("closeInfo");
+
 class Rendering {
 
     static renderingArea = 8000;
@@ -12,6 +17,25 @@ class Rendering {
         this.nameVisibility = document.getElementById("shownames");
 
         this.viewControls = new ViewControls(this.display);
+
+        // For info buttons
+        infoBtn.addEventListener("click", () => {
+            infoOverlay.style.display = "flex";
+            this.display.timeControls.pause();
+        });
+        
+        closeInfo.addEventListener("click", () => {
+            infoOverlay.style.display = "none";
+            this.display.timeControls.unPause();
+        });
+        
+        /* Optional: click outside panel to close */
+        infoOverlay.addEventListener("click", (e) => {
+            if (e.target === infoOverlay) {
+                infoOverlay.style.display = "none";
+                this.display.timeControls.unPause();
+            }
+        });
     }
     
     drawState() {
@@ -170,25 +194,5 @@ toggleBtn.addEventListener("click", () => {
         tools.classList.remove("open");
         lowerRight.classList.remove("raise");
         toggleBtn.textContent = "▲";
-    }
-});
-
-// Button to show websites information and instructions
-const infoBtn = document.getElementById("infoBtn");
-const infoOverlay = document.getElementById("infoOverlay");
-const closeInfo = document.getElementById("closeInfo");
-
-infoBtn.addEventListener("click", () => {
-    infoOverlay.style.display = "flex";
-});
-
-closeInfo.addEventListener("click", () => {
-    infoOverlay.style.display = "none";
-});
-
-/* Optional: click outside panel to close */
-infoOverlay.addEventListener("click", (e) => {
-    if (e.target === infoOverlay) {
-        infoOverlay.style.display = "none";
     }
 });
