@@ -102,7 +102,6 @@ class ViewControls  {
     }
 
     touchMove() {
-        event.preventDefault();
         if (event.touches.length == 1) {
             this.pointerMove(event.touches[0].clientX,event.touches[0].clientY);
         }
