@@ -192,7 +192,7 @@ class ViewControls  {
     resetViewToDefault() {
         if (window.innerWidth <= 700) {
             // Larger click zone for touchscreen
-            Adjuster.clickDistance = 50;
+            Adjuster.clickDistance = 30;
 
             this.display.canvas.width = window.innerWidth;
             this.display.canvas.height = window.innerHeight;
