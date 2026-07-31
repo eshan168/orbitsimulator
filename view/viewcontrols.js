@@ -31,9 +31,9 @@ class ViewControls  {
         addEventListener("mouseup", (event) => this.pointerUp(event));
 
         // event.clientX will have value with mouseclick but no value with touchscreen
-        addEventListener("touchstart", (event) => this.touchStart(event), {passive: false});
-        addEventListener("touchmove", (event) => this.touchMove(event), {passive: false});
-        addEventListener("touchend", (event) => this.touchEnd(event));
+        this.display.canvas.addEventListener("touchstart", (event) => this.touchStart(event), {passive: false});
+        this.display.canvas.addEventListener("touchmove", (event) => this.touchMove(event), {passive: false});
+        this.display.canvas.addEventListener("touchend", (event) => this.touchEnd(event));
 
         addEventListener("wheel", (event) => this.wheel(event), {passive: false});
         addEventListener("resize", (event) => this.resetViewToDefault());
@@ -101,6 +101,7 @@ class ViewControls  {
     }
 
     touchMove() {
+        event.preventDefault();
         if (event.touches.length == 1) {
             this.pointerMove(event.touches[0].clientX,event.touches[0].clientY);
         }

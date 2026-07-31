@@ -4,7 +4,7 @@ html, body {
     overflow-y: hidden;
     overflow-x: hidden;
     font-family: expo-brand-demi,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-
+    overscroll-behavior: none;
 }
 
 .text {
@@ -33,6 +33,7 @@ canvas {
     height: 100%;
     width: 100%;
     object-fit: contain;
+    touch-action: none;
 }
 
 #lowerRightButtons {
