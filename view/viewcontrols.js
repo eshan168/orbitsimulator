@@ -26,24 +26,20 @@ class ViewControls  {
 
         this.focusbody = null;
 
-        addEventListener("mousedown", (event) => this.pointerDown(event));
+        addEventListener("mousedown", (event) => this.pointerDown(event.clientX,event.clientY));
+        addEventListener("mousemove", (event) => this.pointerMove(event.clientX,event.clientY));
         addEventListener("mouseup", (event) => this.pointerUp(event));
-        addEventListener("mousemove", (event) => this.pointerMove(event));
 
         // event.clientX will have value with mouseclick but no value with touchscreen
-        addEventListener("touchstart", (event) => this.pointerDown(event.touches[0]));
-        addEventListener("touchend", (event) => this.pointerUp(event.touches[0]));
-        addEventListener("touchmove", (event) => this.pointerMove(event.touches[0]));
+        addEventListener("touchstart", (event) => this.touchStart(event), {passive: false});
+        addEventListener("touchmove", (event) => this.touchMove(event), {passive: false});
+        addEventListener("touchend", (event) => this.touchEnd(event));
 
         addEventListener("wheel", (event) => this.wheel(event), {passive: false});
         addEventListener("resize", (event) => this.resetViewToDefault());
 
         // Pinch zoom on touchscreen 
-        addEventListener("touchstart", (event) => this.pinchStart(event), { passive: false });
-        addEventListener("touchend", (event) => this.pinchEnd(event), { passive: false });
-        addEventListener("touchmove", (event) => this.pinchZoom(event), { passive: false });
         this.pinchDistance = null;
-        this.pinchMiddle = [];
 
         focusMenu.addEventListener("change", () => this.changefocus());
         this.changefocus();
@@ -58,14 +54,14 @@ class ViewControls  {
         this.resetViewToDefault();
     }
 
-    pointerDown(event) {
+    pointerDown(x,y) {
         if (!event.target.closest("canvas")) {
             return;
         }
 
         let rect = this.display.canvas.getBoundingClientRect()
-        this.xstart = event.clientX - rect.left;
-        this.ystart = event.clientY - rect.top;
+        this.xstart = x - rect.left;
+        this.ystart = y - rect.top;
         this.isPressed = true;
     }
 
@@ -73,60 +69,81 @@ class ViewControls  {
         this.isPressed = false;
     }
 
-    pointerMove(event) {
+    pointerMove(x,y) {
         if (!this.isPressed || this.adjuster.drag) {
             return;
         }
 
         let rect = this.display.canvas.getBoundingClientRect()
-        let x = event.clientX - rect.left;
-        let y = event.clientY - rect.top;
+        let realx = x - rect.left;
+        let realy = y - rect.top;
 
-        let translatex = (x-this.xstart)/this.zoomScale;
-        let translatey = (y-this.ystart)/this.zoomScale;
+        let translatex = (realx-this.xstart)/this.zoomScale;
+        let translatey = (realy-this.ystart)/this.zoomScale;
         this.display.ctx.translate(translatex,translatey);
 
-        this.xstart = x;
-        this.ystart = y;
+        this.xstart = realx;
+        this.ystart = realy;
     }
 
-    pinchStart(event) {
-        if (event.touches.length == 2 && event.touches[0].target.closest("canvas") && event.touches[1].target.closest("canvas")) {
-            this.pinchDistance = this.touchesDistance(event.touches);
-
-            let x = (event.touches[0].clientX + event.touches[1].clientX)/2
-            let y = (event.touches[0].clientY + event.touches[1].clientY)/2
-            this.pinchMiddle = [x,y];
+    touchStart() {
+        if (event.touches.length == 1) {
+            this.pointerDown(event.touches[0].clientX,event.touches[0].clientY);
         }
-    }
-
-    pinchZoom(event) {
-        if (event.touches.length == 2) {
-
-            event.preventDefault();
-            let newDistance = this.touchesDistance(event.touches);
-
-            if (this.pinchDistance != null) {
-                if (newDistance / this.pinchDistance < 0.95 || newDistance / this.pinchDistance > 1.0526) {
-                    let zoomFactor = newDistance / this.pinchDistance;
-                    
-
-                    this.zoom(this.pinchMiddle[0],this.pinchMiddle[1],zoomFactor < 1 ? 1 : -1);
-                    this.pinchDistance = newDistance;
-                }
+        else if (event.touches.length == 2) {
+            if (event.touches[0].target.closest("canvas") && event.touches[1].target.closest("canvas")) {
+                this.pinchDistance = this.touchesDistance(event.touches);
+                
+                let middle = this.touchesMiddle(event.touches);
+                this.pointerDown(middle[0],middle[1]);
             }
         }
     }
 
-    pinchEnd(event) {
-        this.pinchDistance = null;
+    touchMove() {
+        if (event.touches.length == 1) {
+            this.pointerMove(event.touches[0].clientX,event.touches[0].clientY);
+        }
+        else if (event.touches.length == 2) {
+            this.pinchZoom(event);
+            
+            let middle = this.touchesMiddle(event.touches);
+            this.pointerMove(middle[0],middle[1]);
+        }
+    }
+
+    touchEnd() {
+        this.pointerUp(event.touches);
+        if (event.touches.length == 2) {
+            this.pinchDistance = null;
+        }
+    }
+
+    pinchZoom(event) {
+        let newDistance = this.touchesDistance(event.touches);
+
+        if (this.pinchDistance != null) {
+            if (newDistance / this.pinchDistance < 0.95 || newDistance / this.pinchDistance > 1.0526) {
+                let zoomFactor = newDistance / this.pinchDistance;
+                let middle = this.touchesMiddle(event.touches);
+
+                this.zoom(middle[0],middle[1],zoomFactor < 1 ? 1 : -1);
+                this.pinchDistance = newDistance;
+            }
+        }
     }
 
     touchesDistance(touches) {
         let x = touches[0].clientX - touches[1].clientX;
         let y = touches[0].clientY - touches[1].clientY;
         return Math.sqrt(x**2 + y**2);
-      }
+    }
+
+    touchesMiddle(touches) {
+        let x = (touches[0].clientX + touches[1].clientX)/2
+        let y = (touches[0].clientY + touches[1].clientY)/2
+        return [x,y];
+    }
 
     wheel(event) {
         if (!event.target.closest("canvas")) {
@@ -144,8 +161,6 @@ class ViewControls  {
         if (this.zoomScale*zoomFactor >= ViewControls.maxZoom || this.zoomScale*zoomFactor <= ViewControls.minZoom) {
             return;
         }
-
-        console.log(dy);
 
         this.zoomScale *= zoomFactor;
         this.display.bodies.forEach((body) => this.updateText(body));
