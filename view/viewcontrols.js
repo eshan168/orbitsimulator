@@ -34,7 +34,12 @@ class ViewControls  {
         addEventListener("touchstart", (event) => this.touchStart(event), {passive: false});
         addEventListener("touchmove", (event) => this.touchMove(event), {passive: false});
         addEventListener("touchend", (event) => this.touchEnd(event));
-        addEventListener("touchcancel", (event) => this.touchEnd(event));
+        // addEventListener("touchcancel", (event) => this.touchEnd(event));
+
+        // Prevent pinch zooming with gestures
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault(); // Prevent zoom gesture
+        }, { passive: false });
 
         addEventListener("wheel", (event) => this.wheel(event), {passive: false});
         addEventListener("resize", (event) => this.resetViewToDefault());
