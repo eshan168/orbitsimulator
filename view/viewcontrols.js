@@ -34,6 +34,12 @@ class ViewControls  {
         this.display.canvas.addEventListener("touchstart", (event) => this.touchStart(event), {passive: false});
         this.display.canvas.addEventListener("touchmove", (event) => this.touchMove(event), {passive: false});
         this.display.canvas.addEventListener("touchend", (event) => this.touchEnd(event));
+        this.display.canvas.addEventListener("touchcancel", (event) => this.touchEnd(event));
+
+        // Preventing page zoom on safari
+        document.addEventListener("gesturestart", (event) => event.preventDefault());
+        document.addEventListener("gesturechange", (event) => event.preventDefault());
+        document.addEventListener("gestureend", (event) => event.preventDefault());
 
         addEventListener("wheel", (event) => this.wheel(event), {passive: false});
         addEventListener("resize", (event) => this.resetViewToDefault());
