@@ -86,7 +86,7 @@ class ViewControls  {
         this.ystart = realy;
     }
 
-    touchStart() {
+    touchStart(event) {
         if (event.touches.length == 1) {
             this.pointerDown(event.touches[0].clientX,event.touches[0].clientY);
         }
@@ -100,9 +100,11 @@ class ViewControls  {
         }
     }
 
-    touchMove() {
+    touchMove(event) {
         // Prevent zooming into browser with fingers
-        event.preventDefault();
+        if (event.touches[0].target.closest("canvas")) {
+            event.preventDefault();
+        }
 
         if (event.touches.length == 1) {
             this.pointerMove(event.touches[0].clientX,event.touches[0].clientY);
