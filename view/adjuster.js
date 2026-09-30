@@ -29,8 +29,8 @@ class Adjuster {
         addEventListener("mousemove", (event) => this.pointerMove(event));
 
         addEventListener("wheel", (event) => this.wheel(event));
-        addEventListener("touchstart", (event) => this.pointerDown(event.touches[0]));
-        addEventListener("touchend", (event) => this.pointerUp(event.changedTouches[0]));
+        addEventListener("touchstart", (event) => this.pointerDown(event.touches[0]), {passive: false});
+        addEventListener("touchend", (event) => this.pointerUp(event.changedTouches[0]), {passive: false});
         addEventListener("touchmove", (event) => this.pointerMove(event.touches[0]));
 
         addEventListener("keydown", () => this.changeTargetBodyStat(event));
