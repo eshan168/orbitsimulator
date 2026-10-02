@@ -182,7 +182,29 @@
                 <p>
                 This gravity sandbox is ideal for students, educators, and anyone interested in space physics, orbital mechanics, or interactive simulations.
                 </p>
+
+                <h2>Simlulation Math</h2>
+
+                <p> The simulation uses the <strong>Velocity Verlet</strong> numerical integration method to update the positions and velocities of bodies over time. Velocity Verlet is particularly useful for orbital simulations because it provides good long-term stability while preserving the behavior of systems involving gravitational forces. </p>
+
+                <p> For each simulation step, the position is first updated using the body's current velocity and its acceleration from the previous step: </p>
+
+                <p> <strong>x(t + Δt) = x(t) + v(t)Δt + ½a(t)Δt²</strong> </p>
+
+                <p> The simulator then recalculates the gravitational acceleration using the bodies' new positions. The velocity is subsequently updated using the average of the acceleration from the previous position and the newly calculated acceleration: </p>
+
+                <p> <strong>v(t + Δt) = v(t) + ½[a(t) + a (t + Δt)]Δt</strong> </p>
+
+                <p> A more common simpler numerical integration method is <strong>Euler's method</strong>. Euler's method updates both position and velocity using only the acceleration and velocity at the beginning of each time step: </p>
+
+                <p> <strong>v(t + Δt) = v(t) + a(t)Δt</strong> </p>
+
+                <p> <strong>x(t + Δt) = x(t) + v(t)Δt</strong> </p>
+
+                <p> While Euler's method is simple and computationally inexpensive, it is not well suited for long-running orbital simulations. It is only first-order accurate <strong>O(Δt)</strong> as it only uses the velocity at that moment to calculate new position and doesn't account for changes in acceleration over that timestep, so errors accumulate quickly and cause the simulation to gain or lose energy over time. </p>
                 
+                <p> In contrast, Velocity Verlet is second-order accurate <strong>O(Δt²)</strong> as it factors in the acceleration changing over that interval. It's also sympletic which means the total energy is bounded and oscillates around a constant value rather than continually growing or shrinking.</p>
+
                 <h2>How to Use the Gravity Simulator</h2>
 
                 <h3>Creating Bodies</h3>
