@@ -32,6 +32,8 @@ class TimeControls {
         }
     }
 
+    // Halve the timestep and increase the number of extra steps
+    // Allows the simluation to remain a good speed with a small timestep and be accurate by taking more steps for calculations between frames
     skipbackward() {
         if (Math.abs(VelocityVerletSim.currentTimestep)*0.5 > minspeed && !this.paused) {
             VelocityVerletSim.currentTimestep *= 0.5;

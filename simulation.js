@@ -23,7 +23,7 @@ class VelocityVerletSim {
 
     simulateStep() {
 
-        // Update Position based on velocity and previous acceleration
+        // Update position based on velocity and previous acceleration
         for (let body of this.display.bodies) {
             if (body.oldAcceleration == null) {
                 body.oldAcceleration = [...body.newAcceleration];
@@ -50,6 +50,7 @@ class VelocityVerletSim {
         }
     }
 
+    // F = G * m1 * m2 / r^2
     gravity(body1,body2) {
         return (body1.mass*body2.mass)/(VelocityVerletSim.realDistance(body1,body2)**2) * gconstant;
     }
@@ -69,7 +70,7 @@ class VelocityVerletSim {
         body2.velocity[1] += (b1[1]-b2[1])/distance * b2accel;
     }
 
-    // Updates the acceleration for only the body1
+    // Updates the newAcceleration for only the body1
     calculateAcceleration1(body1,body2) {
         let scaledForce = this.gravity(body1,body2) / scale 
         let distance = VelocityVerletSim.scaledDistance(body1,body2);
@@ -80,14 +81,14 @@ class VelocityVerletSim {
         body1.newAcceleration[1] += b1accel[1];
     }
 
-    // Updates the acceleration for both bodies
+    // Adds x and y components of acceleration to the newAcceleration property of each body
     calculateAcceleration2(body1,body2) {
         let scaledForce = this.gravity(body1,body2) / scale 
         let distance = VelocityVerletSim.scaledDistance(body1,body2);
-        let normalizedVelocity = [(body2.position[0]-body1.position[0])/distance, (body2.position[1]-body1.position[1])/distance];
+        let normalizedVector = [(body2.position[0]-body1.position[0])/distance, (body2.position[1]-body1.position[1])/distance];
 
-        let b1accel = [normalizedVelocity[0] * scaledForce/body1.mass, normalizedVelocity[1] * scaledForce/body1.mass];
-        let b2accel = [-normalizedVelocity[0] * scaledForce/body2.mass, -normalizedVelocity[1] * scaledForce/body2.mass];
+        let b1accel = [normalizedVector[0] * scaledForce/body1.mass, normalizedVector[1] * scaledForce/body1.mass];
+        let b2accel = [-normalizedVector[0] * scaledForce/body2.mass, -normalizedVector[1] * scaledForce/body2.mass];
 
         body1.newAcceleration[0] += b1accel[0];
         body1.newAcceleration[1] += b1accel[1];

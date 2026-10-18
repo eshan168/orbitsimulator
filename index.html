@@ -31,10 +31,10 @@
     <meta property="og:description" content="Explore gravity, orbits, and motion in this real-time physics simulator. Create bodies and experiment with orbital mechanics.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://eshan168.github.io/orbitsimulator/">
-    <meta property="og:image" content="https://eshan168.github.io/orbitsimulator/orbit_image.png">
+    <meta property="og:image" content="https://eshan168.github.io/orbitsimulator/orbit_image.jpg">
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="https://eshan168.github.io/orbitsimulator/orbit_image.png">
+    <meta name="twitter:card" content="https://eshan168.github.io/orbitsimulator/orbit_image.jpg">
     <meta name="twitter:title" content="Gravity Simulator - Interactive Physics Sandbox">
     <meta name="twitter:description" content="Real-time gravity simulation with interactive controls and orbital mechanics.">
 
@@ -42,7 +42,7 @@
     <link rel="canonical" href="https://eshan168.github.io/orbitsimulator/">
 
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="orbit_image.png">
+    <link rel="icon" type="image/jpg" href="https://eshan168.github.io/orbitsimulator/orbit_image.jpg">
 </head>
 
 <!-- Google tag (gtag.js) -->
@@ -166,32 +166,31 @@
             <main id="infoContent">
                 <h1>Gravity Simulator</h1>
 
+                <p><strong>Creator:</strong> Eshan Reddy</p>
+                <p><strong>Github:</strong> <a href="https://github.com/eshan168/orbitsimulator" target="_blank">eshan168/orbitsimulator</a></p>
                 <h2>About This Gravity Simulator</h2>
                 <p>
                 This mobile friendly 2D interactive gravity simulator is a real-time physics sandbox that lets you explore orbital mechanics, gravitational interactions, and motion in space. You can create celestial bodies, adjust their position and velocity, and observe how they influence each other through gravity.
                 </p>
 
                 <p>
-                Built using HTML5 Canvas and JavaScript, this simulation models realistic gravitational behavior, allowing users to experiment with orbits, collisions, and multi-body systems. Whether you're learning physics, testing orbital setups, or just experimenting, this tool provides a hands-on way to visualize complex motion.
+                Built using HTML5 Canvas and JavaScript, it includes dynamic zooming, body focusing, velocity visualization, and full control over object properties such as velocity, position, and mass.
                 </p>
 
                 <p>
-                Key features include dynamic zooming, body focusing, velocity visualization, and full control over object properties. The simulator is designed to work on both desktop and mobile devices, making it accessible for learning and experimentation anywhere.
+                This is for students, educators, and anyone who wants to explore and experiment with space physics and orbital mechanics interactively.
                 </p>
 
-                <p>
-                This gravity sandbox is ideal for students, educators, and anyone interested in space physics, orbital mechanics, or interactive simulations.
-                </p>
 
                 <h2>Simlulation Math</h2>
 
-                <p> The simulation uses the <strong>Velocity Verlet</strong> numerical integration method to update the positions and velocities of bodies over time. Velocity Verlet is particularly useful for orbital simulations because it provides good long-term stability while preserving the behavior of systems involving gravitational forces. </p>
+                <p> The simulation uses the <strong>Velocity Verlet</strong> numerical integration method to update the positions and velocities of bodies over time. Velocity Verlet is specifically useful for orbital simulations because it provides good long-term stability while preserving the behavior of systems involving gravitational forces. </p>
 
-                <p> For each simulation step, the position is first updated using the body's current velocity and its acceleration from the previous step: </p>
+                <p> For each simulation step, the position is first updated using the body's velocity and current acceleration: </p>
 
                 <p> <strong>x(t + Δt) = x(t) + v(t)Δt + ½a(t)Δt²</strong> </p>
 
-                <p> The simulator then recalculates the gravitational acceleration using the bodies' new positions. The velocity is subsequently updated using the average of the acceleration from the previous position and the newly calculated acceleration: </p>
+                <p> The simulator then recalculates the gravitational acceleration using the body's new positions. The velocity is then updated using the average of the acceleration from the previous position and the newly calculated acceleration: </p>
 
                 <p> <strong>v(t + Δt) = v(t) + ½[a(t) + a (t + Δt)]Δt</strong> </p>
 
@@ -201,20 +200,22 @@
 
                 <p> <strong>x(t + Δt) = x(t) + v(t)Δt</strong> </p>
 
-                <p> While Euler's method is simple and computationally inexpensive, it is not well suited for long-running orbital simulations. It is only first-order accurate <strong>O(Δt)</strong> as it only uses the velocity at that moment to calculate new position and doesn't account for changes in acceleration over that timestep, so errors accumulate quickly and cause the simulation to gain or lose energy over time. </p>
+                <p> While Euler's method is simple and slighty less computationally expensive, it is not well suited for long-running orbital simulations. It is only first-order accurate <strong>O(Δt)</strong>, using the current velocity to update position and the current acceleration to update velocity. </p>
+
+                <p>This means it does not account for how velocity and acceleration change throughout each timestep, so numerical errors can accumulate and causing the system to gain or lose energy over time. </p>
                 
-                <p> In contrast, Velocity Verlet is second-order accurate <strong>O(Δt²)</strong> as it factors in the acceleration changing over that interval. It's also sympletic which means the total energy is bounded and oscillates around a constant value rather than continually growing or shrinking.</p>
+                <p> In contrast, Velocity Verlet is second-order accurate <strong>O(Δt²)</strong> as it factors in the acceleration changing over that interval. It's also sympletic which means the total energy usually oscillates around the true energy rather than systematically growing or shrinking.</p>
 
                 <h2>How to Use the Gravity Simulator</h2>
 
                 <h3>Creating Bodies</h3>
                 <p>
-                Use the "Create Body" tools to add new objects to the simulation. Select a body type, then click on the canvas to place it. Each body will interact gravitationally with others in real time.
+                Use the "Create Body" tools to add new objects to the simulation. Select a body type, then create to place it in the middle of the sandbox. The simluator will be paused so you can adjust it's position and velocity before unpausing.
                 </p>
 
                 <h3>Adjusting Position and Velocity</h3>
                 <p>
-                Click on a body to select it. You can drag it to change its position or adjust its velocity by dragging the velocity arrow. Fine-tune values using the input fields for precise control.
+                Click on a body to select it. You can drag it to change its position or adjust its velocity by dragging the velocity arrow. Or you can input specific values using the input fields for more precise control.
                 </p>
 
                 <h3>Camera Controls</h3>
@@ -224,7 +225,7 @@
 
                 <h3>Editing and Deleting</h3>
                 <p>
-                Use the modify tools to update body properties or remove objects from the simulation. You can also clear trails to reset visual paths.
+                Select a body by either clicking it or selecting its name from the drop down menu. Then use the modify tools to update body properties, remove objects from the simulation, or clear trails to reset visual paths.
                 </p>
 
                 <h3>Mobile Controls</h3>

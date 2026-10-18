@@ -21,6 +21,8 @@ class Trail {
         }
     }
 
+    // If the tempTrail has reached a certain length add the last point to compressed Trail and clear tempTrail
+    // It also allows for a smooth path to be drawn from the planet instead of only adding points to the trail every 8 timesteps which would make the path look choppy
     updatetrail() {
         if (this.tempTrail.length >= Trail.compressedTrailPeriod) {
             this.compressedTrail.push(this.tempTrail[this.tempTrail.length-1]);
@@ -41,6 +43,8 @@ class Trail {
     // Make sure trails stay the same length when timestep is increased an decreased
     static adjustTrailsToTime(faster,bodies) {
         let newPeriod = Math.max(1, 8 * VelocityVerletSim.defaultTimestep / Math.abs(VelocityVerletSim.currentTimestep));
+
+        // Double length of compressed trail when timestep is decreased and half length of compressed trail when timestep is increased
         if (newPeriod == Trail.compressedTrailPeriod && faster) {
             for (let body of bodies) {
                 body.trail.trailLength /= 2;
@@ -53,6 +57,7 @@ class Trail {
             }
             this.increaseCompressedLengths(bodies);
         }
+        
         else if (!faster) {
             this.increaseTempLengths(bodies);
         }

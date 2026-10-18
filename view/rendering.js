@@ -93,7 +93,7 @@ class Rendering {
 
     }
 
-    // Draw compressedTrail and then tempTrial using quadriatic curves where the midpoints are the points and the actual points are the control points
+    // Draw compressedTrail and then tempTrial using quadriatic curves where the midpoints are the points and the actual points are the control points to make it look smoother
     drawtrail(body) {
         let comp = body.trail.compressedTrail;
         let temp = body.trail.tempTrail;
@@ -143,7 +143,7 @@ class Rendering {
         this.display.ctx.beginPath();
         this.display.ctx.arc(body.position[0],body.position[1],body.radius+10/zoom,0,Math.PI*2);
 
-        // Arrow for velocity
+        // calculate arrow for velocity length and direction
         let arrowEndPoint = this.viewControls.adjuster.getVelocityArrowPosition();
 
         this.display.ctx.fillStyle = "white";

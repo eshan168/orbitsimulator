@@ -26,6 +26,8 @@ class ViewControls  {
 
         this.focusbody = null;
 
+        // Seperate event listeners for mouse and touch events to avoid issues with event.clientX and event.clientY being undefined for touch events
+
         addEventListener("mousedown", (event) => this.pointerDown(event.clientX,event.clientY));
         addEventListener("mousemove", (event) => this.pointerMove(event.clientX,event.clientY));
         addEventListener("mouseup", (event) => this.pointerUp(event));
@@ -59,6 +61,7 @@ class ViewControls  {
             return;
         }
 
+        // Getting true position on the canvas by subtracting other browser elements
         let rect = this.display.canvas.getBoundingClientRect()
         this.xstart = x - rect.left;
         this.ystart = y - rect.top;
@@ -86,6 +89,7 @@ class ViewControls  {
         this.ystart = realy;
     }
 
+    // Makes sure zooming and panning only happens when the mouse is over the canvas and not other elements like buttons or menus
     touchStart(event) {
         if (event.touches.length == 1) {
             this.pointerDown(event.touches[0].clientX,event.touches[0].clientY);
@@ -109,6 +113,8 @@ class ViewControls  {
         if (event.touches.length == 1) {
             this.pointerMove(event.touches[0].clientX,event.touches[0].clientY);
         }
+
+        // Uses midpoint of two touches as the pointer position if there are two touches
         else if (event.touches.length == 2) {
             this.pinchZoom(event);
             
@@ -124,6 +130,9 @@ class ViewControls  {
         }
     }
 
+    // Takes the midpoint between the two points of the fingers and sets that as the pointer position
+    // This means the rotating the fingers around the midpoint or moving them both coser or farther form the midpoitn has no effect
+    // This prevents unwanted panning while zooming also making it more intuitive
     pinchZoom(event) {
         let newDistance = this.touchesDistance(event.touches);
 
@@ -174,16 +183,19 @@ class ViewControls  {
         let yoffset = y-(this.display.canvas.height/2);
         let c = this.getCenter();
         
+        // The position from where the user's mouse starts zooming
+        // Using this it's possible to zoom in and out from the mouse position instead of the center of the canvas which is more intuitive
         this.mousefocus = [c[0]+xoffset/this.zoomScale*zoomFactor,c[1]+yoffset/this.zoomScale*zoomFactor];
 
+        // Scales the canvas a set amount and translates the canvas after the scale so that the zooming is centered around the mouse position
         let widthtranslation = zoomFactor > 1 ? -this.mousefocus[0] * 1/11: this.mousefocus[0] * 1/9;
         let heighttranslation = zoomFactor > 1 ? -this.mousefocus[1] * 1/11: this.mousefocus[1] * 1/9;
 
         this.display.ctx.scale(zoomFactor,zoomFactor);
         this.display.ctx.translate(widthtranslation,heighttranslation);
-        zoomFactor = 1;
     }
 
+    // When zooming happens the text name of each body in text has to be updated to make sure it is still readable and not too small or too large
     updateText(body) {
         body.textoffset = (body.radius+5/this.zoomScale)
         body.font = `${Math.max(Math.max(10/this.zoomScale,body.radius/2), minfont)}px Arial`;

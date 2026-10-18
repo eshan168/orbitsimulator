@@ -209,6 +209,11 @@ select {
     padding-right: 0.5rem;
 }
 
+#infoContent a {
+    color: #6c8cff;
+    text-decoration: none;
+}
+
 #closeInfo {
     position: absolute;
     top: 0.5rem;
