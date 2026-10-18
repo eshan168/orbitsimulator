@@ -39,3 +39,13 @@ Select a body by either clicking it or selecting its name from the drop down men
 
 Mobile Controls:
 On smaller screens, use the toggle arrow to open the tools panel. The interface is optimized for touch, including drag interactions and pinch-style navigation.
+
+Code architecture:
+Uses modularity to be easily maintainable and easy to add new feature to certain components.
+
+Main Display Class
+  - Simulation logic and math
+  - Rendering bodies and trails
+  - User interaction with sandbox (zooming, panning, adjusting bodies, creating bodies)
+
+If you wanted to change the type of integration from velocity Verlet to something else, it's simple to add the new simulator logic without affecting the rest of the program.
