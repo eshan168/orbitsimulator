@@ -69,7 +69,7 @@ class Adjuster {
                 this.dragType = "pos";
             }
         }
-        else if (velDistance < posDistance) {
+        else if (velDistance <= posDistance) {
             if (velDistance < minDistance) {
                 this.drag = true;
                 this.dragType = "vel";
@@ -207,7 +207,8 @@ class Adjuster {
             let velDistance = this.clickDistance(event,vel);
             let posDistance = this.clickDistance(event,pos);
 
-            if (velDistance < Adjuster.clickDistance/this.viewControls.zoomScale && velDistance < posDistance) {
+            //  check if the click is in the velocity or body interaction zone and choose the click that's closer
+            if (velDistance < Adjuster.clickDistance/this.viewControls.zoomScale && velDistance <= posDistance) {
                 return this.targetBody;
             }
             else if (posDistance < Adjuster.clickDistance/this.viewControls.zoomScale && posDistance < velDistance) {
